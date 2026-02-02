@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import { Header } from '@/components/dashboard/Header';
 import { MetricsCards } from '@/components/dashboard/MetricsCards';
 import { NetworkCard } from '@/components/dashboard/NetworkCard';
@@ -11,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useValidatorData } from '@/hooks/useValidatorData';
+import { Network } from '@/types/network';
 import { 
   LayoutGrid, 
   Table2, 
@@ -19,10 +21,18 @@ import {
   RefreshCw,
   AlertCircle,
   CheckCircle2,
-  Clock
+  Clock,
+  ArrowDownWideNarrow,
+  Coins,
+  DollarSign,
+  Percent
 } from 'lucide-react';
 
+type SortBy = 'stake' | 'revenue' | 'apr';
+
 export default function Dashboard() {
+  const [sortBy, setSortBy] = useState<SortBy>('stake');
+  
   const { 
     networks, 
     metrics, 
@@ -33,7 +43,38 @@ export default function Dashboard() {
     refresh 
   } = useValidatorData();
 
-  const activeNetworks = networks.filter(n => n.status === 'active');
+  // Sort function
+  const sortNetworks = (networksToSort: Network[]): Network[] => {
+    return [...networksToSort].sort((a, b) => {
+      // Networks with live data come first
+      const aHasData = a.stake?.usdValue || a.estimatedMonthlyRevenue;
+      const bHasData = b.stake?.usdValue || b.estimatedMonthlyRevenue;
+      
+      if (aHasData && !bHasData) return -1;
+      if (!aHasData && bHasData) return 1;
+      
+      // Then sort by selected criteria
+      switch (sortBy) {
+        case 'stake':
+          return (b.stake?.usdValue || 0) - (a.stake?.usdValue || 0);
+        case 'revenue':
+          return (b.estimatedMonthlyRevenue || 0) - (a.estimatedMonthlyRevenue || 0);
+        case 'apr':
+          const aprA = a.apr ? (a.apr.min + a.apr.max) / 2 : 0;
+          const aprB = b.apr ? (b.apr.min + b.apr.max) / 2 : 0;
+          return aprB - aprA;
+        default:
+          return 0;
+      }
+    });
+  };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const activeNetworks = useMemo(() => 
+    sortNetworks(networks.filter(n => n.status === 'active')),
+    [networks, sortBy]
+  );
+  
   const comingSoonNetworks = networks.filter(n => n.status === 'coming_soon');
   const networksWithLiveData = activeNetworks.filter(n => n.stake?.usdValue);
 
@@ -144,14 +185,53 @@ export default function Dashboard() {
           <TabsContent value="grid" className="space-y-6">
             {/* Active Networks */}
             <section>
-              <div className="flex items-center gap-2 mb-4">
-                <h2 className="text-xl font-semibold">Active Networks</h2>
-                <Badge variant="outline">{activeNetworks.length}</Badge>
-                {networksWithLiveData.length > 0 && (
-                  <Badge variant="secondary" className="text-xs">
-                    {networksWithLiveData.length} with live data
-                  </Badge>
-                )}
+              <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-semibold">Active Networks</h2>
+                  <Badge variant="outline">{activeNetworks.length}</Badge>
+                  {networksWithLiveData.length > 0 && (
+                    <Badge variant="secondary" className="text-xs">
+                      {networksWithLiveData.length} with live data
+                    </Badge>
+                  )}
+                </div>
+                
+                {/* Sort Controls */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground flex items-center gap-1">
+                    <ArrowDownWideNarrow className="w-4 h-4" />
+                    Sort by:
+                  </span>
+                  <div className="flex gap-1">
+                    <Button
+                      variant={sortBy === 'stake' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setSortBy('stake')}
+                      className="flex items-center gap-1.5"
+                    >
+                      <Coins className="w-3.5 h-3.5" />
+                      Stake
+                    </Button>
+                    <Button
+                      variant={sortBy === 'revenue' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setSortBy('revenue')}
+                      className="flex items-center gap-1.5"
+                    >
+                      <DollarSign className="w-3.5 h-3.5" />
+                      Revenue
+                    </Button>
+                    <Button
+                      variant={sortBy === 'apr' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setSortBy('apr')}
+                      className="flex items-center gap-1.5"
+                    >
+                      <Percent className="w-3.5 h-3.5" />
+                      APR
+                    </Button>
+                  </div>
+                </div>
               </div>
               
               {isLoading ? (
