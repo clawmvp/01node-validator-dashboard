@@ -70,6 +70,7 @@ const TOKEN_DECIMALS: Record<string, number> = {
   quicksilver: 6, // QCK has 6 decimals (uqck)
   dymension: 18,  // DYM has 18 decimals (adym)
   neutron: 6,     // NTRN has 6 decimals (untrn)
+  union: 18,      // U has 18 decimals (au)
   lava: 6,        // LAVA has 6 decimals (ulava)
   irisnet: 6,     // IRIS has 6 decimals (uiris)
 };

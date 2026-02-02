@@ -10,7 +10,6 @@ import { networks } from '@/data/networks';
 import { Network, NetworkMetrics } from '@/types/network';
 
 // Networks with Cosmos SDK that we can query
-// Note: Neutron is ICS chain (uses Cosmos Hub validators, no own staking)
 const COSMOS_NETWORKS = [
   'cosmos',
   'osmosis', 
@@ -23,6 +22,8 @@ const COSMOS_NETWORKS = [
   'sentinel',
   'quicksilver',
   'dymension',
+  'neutron',
+  'union',
   'lava',
   'irisnet',
 ];

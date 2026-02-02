@@ -64,6 +64,12 @@ export const ENDPOINTS = {
     rpc: 'https://rpc-lb.neutron.org',
     chainId: 'neutron-1',
   },
+  union: {
+    lcd: 'https://union-api.polkachu.com',
+    rpc: 'https://union-rpc.polkachu.com',
+    chainId: 'union-1',
+    decimals: 18, // au uses 18 decimals
+  },
   lava: {
     lcd: 'https://lava-api.polkachu.com',
     rpc: 'https://lava-rpc.polkachu.com',
@@ -123,7 +129,8 @@ export const VALIDATOR_ADDRESSES = {
   sentinel: 'sentvaloper1gcx3cq450dgmyha7s3x5mhjqcnxxn40tqykq20',
   quicksilver: 'quickvaloper1dqnwnf3rj8xwd82qra0v5zzkxd9szawy30k6fn',
   dymension: 'dymvaloper1ycsjsqqucdyvl2560y7y2yhfjaj0vvta4v7hm3',
-  neutron: 'neutronvaloper17mggn4znyeyg25wd7498qxl7r2jhgue88ryugs',
+  neutron: 'neutronvaloper1rlyy2ltkc9t9s8gp2tmqxk6guggf6h9g6xj26y',
+  union: 'unionvaloper1dqsjs63kpahlkfj3x5f9kuryk78uekqdv9z72k',
   lava: 'lava@valoper1askl4xtuwgt9ngll0unjp975fgk954y2fjpdc2',
   irisnet: 'iva1nzgvvfam8n4lskkcqmhes07td6wkum9cffvkkx',
   solana: 'BH7asDZbKkTmT3UWiNfmMVRgQEEpXoVThGPmQfgWwDhg',
@@ -145,6 +152,7 @@ export const COINGECKO_IDS: Record<string, string> = {
   quicksilver: 'quicksilver',
   dymension: 'dymension',
   neutron: 'neutron-3',
+  union: 'union-2',
   lava: 'lava-network',
   irisnet: 'iris-network',
   solana: 'solana',
