@@ -122,6 +122,11 @@
   body {
     @apply bg-background text-foreground antialiased;
   }
+  
+  /* Container centering and padding */
+  .container {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
 }
 
 /* Custom utilities for dashboard */
