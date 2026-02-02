@@ -5,7 +5,7 @@ import { Header } from '@/components/dashboard/Header';
 import { MetricsCards } from '@/components/dashboard/MetricsCards';
 import { NetworkCard } from '@/components/dashboard/NetworkCard';
 import { StakeDistributionChart } from '@/components/dashboard/StakeDistributionChart';
-import { APRChart } from '@/components/dashboard/APRChart';
+import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { NetworksTable } from '@/components/dashboard/NetworksTable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -274,7 +274,7 @@ export default function Dashboard() {
           <TabsContent value="charts" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <StakeDistributionChart networks={networks} />
-              <APRChart networks={networks} />
+              <RevenueChart networks={networks} />
             </div>
           </TabsContent>
         </Tabs>
