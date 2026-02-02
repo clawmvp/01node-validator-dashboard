@@ -90,8 +90,9 @@ export async function fetchCosmosValidator(
   }
 
   try {
-    // Fetch validator info
-    const validatorUrl = `${endpoint.lcd}/cosmos/staking/v1beta1/validators/${validatorAddress}`;
+    // Fetch validator info (URL encode validator address for special chars like @)
+    const encodedAddress = encodeURIComponent(validatorAddress);
+    const validatorUrl = `${endpoint.lcd}/cosmos/staking/v1beta1/validators/${encodedAddress}`;
     const validatorRes = await fetch(validatorUrl, {
       headers: { 'Accept': 'application/json' },
       next: { revalidate: 300 }, // Cache for 5 minutes

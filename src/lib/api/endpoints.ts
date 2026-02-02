@@ -116,7 +116,7 @@ export const VALIDATOR_ADDRESSES = {
   quicksilver: 'quickvaloper1dqnwnf3rj8xwd82qra0v5zzkxd9szawy30k6fn',
   dymension: 'dymvaloper1ycsjsqqucdyvl2560y7y2yhfjaj0vvta4v7hm3',
   neutron: 'neutronvaloper17mggn4znyeyg25wd7498qxl7r2jhgue88ryugs',
-  lava: 'lavavaloper1askl4xtuwgt9ngll0unjp975fgk954y2fjpdc2',
+  lava: 'lava@valoper1askl4xtuwgt9ngll0unjp975fgk954y2fjpdc2',
   irisnet: 'iva1nzgvvfam8n4lskkcqmhes07td6wkum9cffvkkx',
   solana: 'BH7asDZbKkTmT3UWiNfmMVRgQEEpXoVThGPmQfgWwDhg',
   sui: '0x876e2ad4ba0375c7752d24ca47c69e7096e6dbfd82a215612a08f47cffebcfbc',
