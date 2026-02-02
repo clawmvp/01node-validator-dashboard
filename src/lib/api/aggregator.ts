@@ -4,6 +4,7 @@ import { fetchCompleteCosmosValidator, ValidatorData } from './cosmos';
 import { fetchSolanaValidator, SolanaValidatorData } from './solana';
 import { fetchSuiValidator, SuiValidatorData } from './sui';
 import { fetchNearValidator, NearValidatorData } from './near';
+import { fetchSkaleValidators, SkaleData } from './skale';
 import { fetchAllPrices, calculateUsdValue } from './prices';
 import { COINGECKO_IDS, VALIDATOR_ADDRESSES } from './endpoints';
 import { networks } from '@/data/networks';
@@ -43,6 +44,7 @@ export async function fetchAllValidatorData(): Promise<{
   solana: SolanaValidatorData | null;
   sui: SuiValidatorData | null;
   near: NearValidatorData | null;
+  skale: SkaleData | null;
   errors: string[];
 }> {
   const errors: string[] = [];
@@ -91,11 +93,20 @@ export async function fetchAllValidatorData(): Promise<{
     errors.push(`Failed to fetch NEAR: ${error}`);
   }
 
+  // Fetch SKALE
+  let skaleData: SkaleData | null = null;
+  try {
+    skaleData = await fetchSkaleValidators();
+  } catch (error) {
+    errors.push(`Failed to fetch SKALE: ${error}`);
+  }
+
   return {
     cosmos: cosmosData,
     solana: solanaData,
     sui: suiData,
     near: nearData,
+    skale: skaleData,
     errors,
   };
 }
@@ -221,6 +232,33 @@ export async function aggregateAllData(): Promise<AggregatedData> {
           updated.estimatedYearlyRevenue = updated.estimatedMonthlyRevenue * 12;
         }
       }
+    }
+
+    // Update SKALE (combined from 2 validators: ID 10 and ID 43)
+    if (network.id === 'skale' && validatorData.skale) {
+      const data = validatorData.skale;
+      
+      if (price && data.totalDelegated > 0) {
+        updated.stake = {
+          amount: data.totalDelegated,
+          usdValue: calculateUsdValue(data.totalDelegated, price),
+        };
+        
+        // SKALE rewards based on stake and APR
+        if (updated.apr) {
+          const avgApr = (updated.apr.min + updated.apr.max) / 2 / 100;
+          const monthlyRewardTokens = data.totalDelegated * avgApr / 12;
+          const commissionEarned = monthlyRewardTokens * ((updated.commission || 5) / 100);
+          updated.estimatedMonthlyRevenue = calculateUsdValue(commissionEarned, price);
+          updated.estimatedYearlyRevenue = updated.estimatedMonthlyRevenue * 12;
+        }
+      }
+    }
+
+    // Neutron has fixed monthly revenue (manual transfer from foundation)
+    if (network.id === 'neutron') {
+      updated.estimatedMonthlyRevenue = 2500; // Fixed $2500/month
+      updated.estimatedYearlyRevenue = 30000; // $30K/year
     }
 
     return updated;

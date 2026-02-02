@@ -68,6 +68,7 @@ export const networks: Network[] = [
     explorerUrl: 'https://www.mintscan.io/neutron/validators/neutronvaloper1rlyy2ltkc9t9s8gp2tmqxk6guggf6h9g6xj26y',
     stakeUrl: 'https://wallet.keplr.app/chains/neutron?modal=validator&chain=neutron-1&validator_address=neutronvaloper1rlyy2ltkc9t9s8gp2tmqxk6guggf6h9g6xj26y',
     commission: 4,
+    // Note: Fixed monthly revenue ~$2500 from foundation (manual transfer)
   },
   {
     id: 'union',
@@ -378,13 +379,14 @@ export const networks: Network[] = [
     name: 'SKALE',
     token: 'SKL',
     logo: '/logos/skale.svg',
-    apr: { min: 30, max: 35 },
+    apr: { min: 8, max: 10 }, // Current SKALE staking APR
     status: 'active',
     ecosystem: 'ethereum',
-    validatorAddress: '10', // Validator ID on SKALE
+    // 2 validators: ID 10 (0x01daB98cb05D8652D791e3BCAE37Cf4b9BE5DBfd) + ID 43 (0xeDF5fDC9ddeDe9d37B265690695E31c86D5e8913)
+    validatorAddress: '10,43',
     explorerUrl: 'https://portal.skale.space/staking/new/0/10',
-    stakeUrl: 'https://portal.skale.space/staking/new/0/10',
-    commission: 5,
+    stakeUrl: 'https://portal.skale.space/staking',
+    commission: 10, // SKALE validator commission
   },
   {
     id: 'celer',
