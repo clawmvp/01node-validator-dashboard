@@ -81,8 +81,8 @@ export default function Dashboard() {
   const networksWithLiveData = activeNetworks.filter(n => n.stake?.usdValue);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <Tabs defaultValue="grid" className="min-h-screen bg-background">
+      <Header onRefresh={refresh} isRefreshing={isLoading} />
       
       <main className="container py-6 space-y-6">
         {/* Page Title */}
@@ -166,28 +166,27 @@ export default function Dashboard() {
           <MetricsCards metrics={metrics} />
         )}
 
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="grid" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="grid" className="flex items-center gap-2">
-              <LayoutGrid className="w-4 h-4" />
-              Grid View
-            </TabsTrigger>
-            <TabsTrigger value="table" className="flex items-center gap-2">
-              <Table2 className="w-4 h-4" />
-              Table View
-            </TabsTrigger>
-            <TabsTrigger value="charts" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              Charts
-            </TabsTrigger>
-            <TabsTrigger value="chainlink" className="flex items-center gap-2">
-              <Link2 className="w-4 h-4" />
-              Chainlink
-            </TabsTrigger>
-          </TabsList>
+        {/* Mobile Navigation Tabs */}
+        <TabsList className="md:hidden w-full justify-start overflow-x-auto">
+          <TabsTrigger value="grid" className="flex items-center gap-1.5">
+            <LayoutGrid className="w-4 h-4" />
+            Grid
+          </TabsTrigger>
+          <TabsTrigger value="table" className="flex items-center gap-1.5">
+            <Table2 className="w-4 h-4" />
+            Table
+          </TabsTrigger>
+          <TabsTrigger value="charts" className="flex items-center gap-1.5">
+            <BarChart3 className="w-4 h-4" />
+            Charts
+          </TabsTrigger>
+          <TabsTrigger value="chainlink" className="flex items-center gap-1.5">
+            <Link2 className="w-4 h-4" />
+            Chainlink
+          </TabsTrigger>
+        </TabsList>
 
-          {/* Grid View */}
+        {/* Grid View */}
           <TabsContent value="grid" className="space-y-6">
             {/* Active Networks */}
             <section>
@@ -288,7 +287,6 @@ export default function Dashboard() {
           <TabsContent value="chainlink" className="space-y-6">
             <ChainlinkCard />
           </TabsContent>
-        </Tabs>
 
         {/* API Documentation */}
         <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border">
@@ -348,6 +346,6 @@ export default function Dashboard() {
           </div>
         </footer>
       </main>
-    </div>
+    </Tabs>
   );
 }
