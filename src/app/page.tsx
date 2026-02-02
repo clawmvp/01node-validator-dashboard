@@ -86,11 +86,11 @@ export default function Dashboard() {
       
       <main className="container py-6 space-y-6">
         {/* Page Title */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold">Validator Analytics</h1>
-              <Badge variant="secondary">Beta</Badge>
+              <h1 className="text-4xl font-bold tracking-tight">Validator Analytics</h1>
+              <Badge variant="secondary" className="text-xs font-semibold px-2.5 py-1">Beta</Badge>
             </div>
             
             {/* Data Status */}
@@ -192,8 +192,8 @@ export default function Dashboard() {
             <section>
               <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-semibold">Active Networks</h2>
-                  <Badge variant="outline">{activeNetworks.length}</Badge>
+                  <h2 className="text-2xl font-semibold tracking-tight">Active Networks</h2>
+                  <Badge variant="outline" className="font-semibold">{activeNetworks.length}</Badge>
                   {networksWithLiveData.length > 0 && (
                     <Badge variant="secondary" className="text-xs">
                       {networksWithLiveData.length} with live data

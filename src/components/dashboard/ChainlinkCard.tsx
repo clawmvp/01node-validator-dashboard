@@ -166,22 +166,25 @@ export function ChainlinkCard() {
   if (!stats) return null;
 
   return (
-    <Card className="col-span-full">
-      <CardHeader>
+    <Card className="col-span-full overflow-hidden border-0 shadow-lg">
+      {/* Top accent */}
+      <div className="h-1 bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600" />
+      
+      <CardHeader className="pb-4">
         <div className="flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              <Link2 className="w-5 h-5 text-blue-500" />
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+              <Link2 className="w-7 h-7 text-white" />
             </div>
             <div>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-3 text-xl">
                 Chainlink Node Operator
-                <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20">
+                <Badge variant="outline" className="bg-gradient-to-r from-blue-500/15 to-blue-500/5 text-blue-600 border-blue-500/30 font-semibold shadow-sm">
                   Since Oct 2021
                 </Badge>
               </CardTitle>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                Price Reference Data Feeds
+              <p className="text-[13px] text-muted-foreground mt-1">
+                Price Reference Data Feeds • Ethereum Mainnet
               </p>
             </div>
           </div>
@@ -207,58 +210,62 @@ export function ChainlinkCard() {
       <CardContent className="space-y-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="p-4 rounded-lg bg-muted/50 border">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+          <div className="p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/30 border shadow-sm">
+            <div className="flex items-center gap-2 text-[13px] text-muted-foreground mb-2">
               <Wallet className="w-4 h-4" />
               Current Balance
             </div>
-            <p className="text-2xl font-bold">
-              {stats.currentBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })} LINK
+            <p className="text-3xl font-bold tracking-tight">
+              {stats.currentBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}
             </p>
+            <p className="text-sm text-muted-foreground font-medium">LINK</p>
             {stats.currentBalanceUsd && (
-              <p className="text-sm text-muted-foreground">
-                ${stats.currentBalanceUsd.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              <p className="text-sm text-muted-foreground mt-1">
+                ≈ ${stats.currentBalanceUsd.toLocaleString(undefined, { maximumFractionDigits: 0 })}
               </p>
             )}
           </div>
           
-          <div className="p-4 rounded-lg bg-muted/50 border">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+          <div className="p-5 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 shadow-sm">
+            <div className="flex items-center gap-2 text-[13px] text-muted-foreground mb-2">
               <ArrowDownLeft className="w-4 h-4 text-emerald-500" />
               Total Received
             </div>
-            <p className="text-2xl font-bold text-emerald-600">
-              {stats.totalReceived.toLocaleString(undefined, { maximumFractionDigits: 2 })} LINK
+            <p className="text-3xl font-bold tracking-tight text-emerald-600">
+              {stats.totalReceived.toLocaleString(undefined, { maximumFractionDigits: 0 })}
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-emerald-600/80 font-medium">LINK</p>
+            <p className="text-sm text-muted-foreground mt-1">
               All time
             </p>
           </div>
           
-          <div className="p-4 rounded-lg bg-muted/50 border">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-              <TrendingUp className="w-4 h-4" />
+          <div className="p-5 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20 shadow-sm">
+            <div className="flex items-center gap-2 text-[13px] text-muted-foreground mb-2">
+              <TrendingUp className="w-4 h-4 text-blue-500" />
               Last 30 Days
             </div>
-            <p className="text-2xl font-bold">
-              {stats.last30Days.toLocaleString(undefined, { maximumFractionDigits: 2 })} LINK
+            <p className="text-3xl font-bold tracking-tight text-blue-600">
+              {stats.last30Days.toLocaleString(undefined, { maximumFractionDigits: 0 })}
             </p>
+            <p className="text-sm text-blue-600/80 font-medium">LINK</p>
             {stats.linkPrice && (
-              <p className="text-sm text-muted-foreground">
-                ${(stats.last30Days * stats.linkPrice).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              <p className="text-sm text-muted-foreground mt-1">
+                ≈ ${(stats.last30Days * stats.linkPrice).toLocaleString(undefined, { maximumFractionDigits: 0 })}
               </p>
             )}
           </div>
           
-          <div className="p-4 rounded-lg bg-muted/50 border">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+          <div className="p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/30 border shadow-sm">
+            <div className="flex items-center gap-2 text-[13px] text-muted-foreground mb-2">
               <Clock className="w-4 h-4" />
               LINK Price
             </div>
-            <p className="text-2xl font-bold">
+            <p className="text-3xl font-bold tracking-tight">
               ${stats.linkPrice?.toFixed(2) || 'N/A'}
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground font-medium">USD</p>
+            <p className="text-sm text-muted-foreground mt-1">
               via CoinGecko
             </p>
           </div>

@@ -26,23 +26,23 @@ export function Header({ onRefresh, isRefreshing = false }: HeaderProps) {
   const { theme, setTheme } = useTheme();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md shadow-sm">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-4">
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-blue-500/25">
               01
             </div>
             <div>
-              <h1 className="text-lg font-bold leading-none">01node</h1>
-              <p className="text-xs text-muted-foreground leading-none">Validator Dashboard</p>
+              <h1 className="text-lg font-bold leading-none tracking-tight">01node</h1>
+              <p className="text-[13px] text-muted-foreground leading-none mt-0.5">Validator Dashboard</p>
             </div>
           </div>
           
           {/* Status Badge */}
-          <Badge variant="outline" className="hidden sm:flex bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
+          <Badge variant="outline" className="hidden sm:flex bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 text-emerald-600 border-emerald-500/30 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse shadow-sm shadow-emerald-500" />
             Live
           </Badge>
         </div>

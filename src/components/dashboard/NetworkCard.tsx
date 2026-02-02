@@ -34,33 +34,44 @@ export function NetworkCard({ network, showProfitability = true }: NetworkCardPr
 
   return (
     <Card className={cn(
-      "transition-all hover:shadow-lg hover:scale-[1.02] group",
+      "relative overflow-hidden transition-all duration-200 hover:shadow-xl hover:scale-[1.01] group border-2 border-transparent hover:border-primary/10",
       network.status === 'coming_soon' && "opacity-60"
     )}>
-      <CardHeader className="pb-2">
+      {/* Top accent line */}
+      <div className={cn(
+        "absolute top-0 left-0 right-0 h-1 bg-gradient-to-r",
+        network.ecosystem === 'cosmos' && "from-blue-500 to-purple-500",
+        network.ecosystem === 'solana' && "from-purple-500 to-green-500",
+        network.ecosystem === 'sui' && "from-blue-400 to-cyan-500",
+        network.ecosystem === 'ethereum' && "from-blue-600 to-indigo-600",
+        !['cosmos', 'solana', 'sui', 'ethereum'].includes(network.ecosystem) && "from-gray-400 to-gray-500"
+      )} />
+      
+      <CardHeader className="pb-3 pt-4">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center font-bold text-sm">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center font-bold text-base shadow-inner">
               {network.token.slice(0, 2)}
             </div>
             <div>
-              <h3 className="font-semibold text-base group-hover:text-primary transition-colors">
+              <h3 className="font-semibold text-[15px] group-hover:text-primary transition-colors">
                 {network.name}
               </h3>
-              <p className="text-sm text-muted-foreground">{network.token}</p>
+              <p className="text-sm text-muted-foreground font-medium">{network.token}</p>
             </div>
           </div>
-          <div className="flex flex-col items-end gap-1">
+          <div className="flex flex-col items-end gap-1.5">
             <Badge 
               variant={network.status === 'active' ? 'default' : 'secondary'}
               className={cn(
-                network.status === 'active' && "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20",
-                network.status === 'coming_soon' && "bg-amber-500/10 text-amber-600"
+                "shadow-sm",
+                network.status === 'active' && "bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 text-emerald-600 border-emerald-500/30",
+                network.status === 'coming_soon' && "bg-gradient-to-r from-amber-500/15 to-amber-500/5 text-amber-600 border-amber-500/30"
               )}
             >
               {network.status === 'active' ? 'Active' : 'Coming Soon'}
             </Badge>
-            <Badge variant="outline" className="text-xs capitalize">
+            <Badge variant="outline" className="text-xs capitalize font-medium">
               {network.ecosystem}
             </Badge>
           </div>
@@ -136,7 +147,7 @@ export function NetworkCard({ network, showProfitability = true }: NetworkCardPr
             </div>
             <Progress 
               value={(1 - network.rank / network.totalValidators) * 100} 
-              className="h-1.5"
+              className="h-2"
             />
           </div>
         )}

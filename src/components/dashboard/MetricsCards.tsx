@@ -75,30 +75,33 @@ export function MetricsCards({ metrics }: MetricsCardsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
       {cards.map((card) => (
-        <Card key={card.title} className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
+        <Card key={card.title} className="relative overflow-hidden border-0 bg-gradient-to-br from-card to-card/80 shadow-[0_1px_3px_0_rgb(0_0_0_/_0.1),_0_1px_2px_-1px_rgb(0_0_0_/_0.1)] hover:shadow-[0_4px_6px_-1px_rgb(0_0_0_/_0.1),_0_2px_4px_-2px_rgb(0_0_0_/_0.1)] transition-all duration-200">
+          {/* Subtle gradient overlay */}
+          <div className={cn("absolute inset-0 opacity-[0.03]", card.bgColor.replace('/10', ''))} />
+          
+          <CardHeader className="pb-3 relative">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardTitle className="text-[13px] font-medium text-muted-foreground tracking-wide">
                 {card.title}
               </CardTitle>
-              <div className={cn("p-2 rounded-lg", card.bgColor)}>
-                <card.icon className={cn("w-4 h-4", card.color)} />
+              <div className={cn("p-2.5 rounded-xl shadow-sm", card.bgColor)}>
+                <card.icon className={cn("w-5 h-5", card.color)} />
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative">
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold">{card.value}</span>
+              <span className="text-3xl font-bold tracking-tight">{card.value}</span>
               {card.trend && (
                 <span className={cn(
-                  "text-xs font-medium",
-                  card.trendUp ? "text-emerald-600" : "text-red-500"
+                  "text-xs font-semibold px-1.5 py-0.5 rounded-md",
+                  card.trendUp ? "text-emerald-600 bg-emerald-500/10" : "text-red-500 bg-red-500/10"
                 )}>
                   {card.trend}
                 </span>
               )}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">{card.subtitle}</p>
+            <p className="text-[13px] text-muted-foreground mt-1.5">{card.subtitle}</p>
           </CardContent>
         </Card>
       ))}
