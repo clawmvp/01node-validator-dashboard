@@ -68,7 +68,7 @@ export const networks: Network[] = [
     explorerUrl: 'https://www.mintscan.io/neutron/validators/neutronvaloper1rlyy2ltkc9t9s8gp2tmqxk6guggf6h9g6xj26y',
     stakeUrl: 'https://wallet.keplr.app/chains/neutron?modal=validator&chain=neutron-1&validator_address=neutronvaloper1rlyy2ltkc9t9s8gp2tmqxk6guggf6h9g6xj26y',
     commission: 4,
-    // Note: Fixed monthly revenue ~$2500 from foundation (manual transfer)
+    // Revenue from Neutron Revenue Module API: $3000/month * performance_rating
   },
   {
     id: 'union',

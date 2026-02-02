@@ -5,6 +5,7 @@ import { fetchSolanaValidator, SolanaValidatorData } from './solana';
 import { fetchSuiValidator, SuiValidatorData } from './sui';
 import { fetchNearValidator, NearValidatorData } from './near';
 import { fetchSkaleValidators, SkaleData } from './skale';
+import { fetchNeutronValidatorRevenue, fetchNeutronRevenueParams, NeutronRevenueStats } from './neutron-revenue';
 import { fetchAllPrices, calculateUsdValue } from './prices';
 import { COINGECKO_IDS, VALIDATOR_ADDRESSES } from './endpoints';
 import { networks } from '@/data/networks';
@@ -45,6 +46,7 @@ export async function fetchAllValidatorData(): Promise<{
   sui: SuiValidatorData | null;
   near: NearValidatorData | null;
   skale: SkaleData | null;
+  neutronRevenue: NeutronRevenueStats | null;
   errors: string[];
 }> {
   const errors: string[] = [];
@@ -101,12 +103,23 @@ export async function fetchAllValidatorData(): Promise<{
     errors.push(`Failed to fetch SKALE: ${error}`);
   }
 
+  // Fetch Neutron revenue stats
+  let neutronRevenueData: NeutronRevenueStats | null = null;
+  try {
+    neutronRevenueData = await fetchNeutronValidatorRevenue(
+      VALIDATOR_ADDRESSES.neutron
+    );
+  } catch (error) {
+    errors.push(`Failed to fetch Neutron revenue: ${error}`);
+  }
+
   return {
     cosmos: cosmosData,
     solana: solanaData,
     sui: suiData,
     near: nearData,
     skale: skaleData,
+    neutronRevenue: neutronRevenueData,
     errors,
   };
 }
@@ -255,10 +268,20 @@ export async function aggregateAllData(): Promise<AggregatedData> {
       }
     }
 
-    // Neutron has fixed monthly revenue (manual transfer from foundation)
-    if (network.id === 'neutron') {
-      updated.estimatedMonthlyRevenue = 2500; // Fixed $2500/month
-      updated.estimatedYearlyRevenue = 30000; // $30K/year
+    // Neutron revenue from Revenue Module API
+    // reward_quote is $3000/month per validator, adjusted by performance
+    if (network.id === 'neutron' && validatorData.neutronRevenue) {
+      const revenueData = validatorData.neutronRevenue;
+      // Monthly reward quota is $3000 USD, adjusted by performance rating
+      const monthlyRevenueUsd = 3000 * revenueData.performanceRating;
+      updated.estimatedMonthlyRevenue = monthlyRevenueUsd;
+      updated.estimatedYearlyRevenue = monthlyRevenueUsd * 12;
+      
+      // Log performance stats
+      console.log(`Neutron: Performance ${(revenueData.performanceRating * 100).toFixed(2)}%, ` +
+        `Blocks ${revenueData.blocksUptime.toFixed(2)}%, ` +
+        `Oracle ${revenueData.oracleUptime.toFixed(2)}%, ` +
+        `Revenue: $${monthlyRevenueUsd.toFixed(0)}/month`);
     }
 
     return updated;
