@@ -368,7 +368,10 @@ export const networks: Network[] = [
     apr: { min: 10, max: 13 },
     status: 'active',
     ecosystem: 'ethereum',
+    stakeUrl: 'https://portal.skale.space/staking',
     commission: 5,
+    // Note: SKALE staking data requires Ethereum contract calls
+    // Validator data available via Consensys Activate platform
   },
   {
     id: 'celer',
