@@ -333,10 +333,19 @@ export function ChainlinkCard() {
                   ]}
                   labelFormatter={(label) => new Date(label).toLocaleDateString()}
                   contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
+                    backgroundColor: '#1f2937',
+                    border: '1px solid #374151',
                     borderRadius: '8px',
+                    padding: '8px 12px',
                   }}
+                  labelStyle={{
+                    color: '#f9fafb',
+                    fontWeight: 600,
+                  }}
+                  itemStyle={{
+                    color: '#f9fafb',
+                  }}
+                  cursor={{ fill: '#3b82f6', fillOpacity: 0.15, radius: 4 }}
                 />
                 <Bar 
                   dataKey="amount" 
