@@ -20,7 +20,7 @@ export function MetricsCards({ metrics }: MetricsCardsProps) {
   const cards = [
     {
       title: 'Total Stake Value',
-      value: `$${metrics.totalStakeUsd.toLocaleString()}`,
+      value: `$${Math.round(metrics.totalStakeUsd).toLocaleString()}`,
       subtitle: 'Across all networks',
       icon: Coins,
       trend: '+12.5%',
@@ -38,7 +38,7 @@ export function MetricsCards({ metrics }: MetricsCardsProps) {
     },
     {
       title: 'Est. Monthly Revenue',
-      value: `$${metrics.estimatedMonthlyRevenue.toLocaleString()}`,
+      value: `$${Math.round(metrics.estimatedMonthlyRevenue).toLocaleString()}`,
       subtitle: 'Before costs',
       icon: DollarSign,
       trend: '+8.3%',
@@ -48,7 +48,7 @@ export function MetricsCards({ metrics }: MetricsCardsProps) {
     },
     {
       title: 'Est. Yearly Revenue',
-      value: `$${metrics.estimatedYearlyRevenue.toLocaleString()}`,
+      value: `$${Math.round(metrics.estimatedYearlyRevenue).toLocaleString()}`,
       subtitle: 'Projected',
       icon: TrendingUp,
       color: 'text-purple-600',

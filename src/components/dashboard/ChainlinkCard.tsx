@@ -296,7 +296,7 @@ export function ChainlinkCard() {
             </span>
             <div className="text-right">
               <span className="text-xl font-bold text-blue-600">
-                {periodTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })} LINK
+                {Math.round(periodTotal).toLocaleString()} LINK
               </span>
               {stats.linkPrice && (
                 <span className="text-sm text-muted-foreground ml-2">
@@ -327,7 +327,7 @@ export function ChainlinkCard() {
                 />
                 <Tooltip
                   formatter={(value) => [
-                    `${Number(value).toLocaleString(undefined, { maximumFractionDigits: 2 })} LINK`,
+                    `${Math.round(Number(value)).toLocaleString()} LINK`,
                     'Amount'
                   ]}
                   labelFormatter={(label) => new Date(label).toLocaleDateString()}
@@ -390,7 +390,7 @@ export function ChainlinkCard() {
                         {new Date(payment.timestamp).toLocaleDateString()}
                       </td>
                       <td className="p-3 text-right font-medium text-emerald-600">
-                        +{payment.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })} LINK
+                        +{Math.round(payment.amount).toLocaleString()} LINK
                       </td>
                       <td className="p-3 text-right text-muted-foreground">
                         {stats.linkPrice 

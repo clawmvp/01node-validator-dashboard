@@ -217,7 +217,7 @@ export function NetworksTable({ networks }: NetworksTableProps) {
                       <TableCell className="text-right">
                         {network.stake ? (
                           <span className="font-medium">
-                            ${network.stake.usdValue.toLocaleString()}
+                            ${Math.round(network.stake.usdValue).toLocaleString()}
                           </span>
                         ) : (
                           <span className="text-muted-foreground">-</span>
@@ -226,7 +226,7 @@ export function NetworksTable({ networks }: NetworksTableProps) {
                       <TableCell className="text-right">
                         {network.estimatedMonthlyRevenue ? (
                           <span className="font-medium text-emerald-600">
-                            ${network.estimatedMonthlyRevenue.toLocaleString()}
+                            ${Math.round(network.estimatedMonthlyRevenue).toLocaleString()}
                           </span>
                         ) : (
                           <span className="text-muted-foreground">-</span>
@@ -245,7 +245,7 @@ export function NetworksTable({ networks }: NetworksTableProps) {
                             ) : (
                               <Minus className="w-4 h-4" />
                             )}
-                            ${Math.abs(profit).toLocaleString()}
+                            ${Math.round(Math.abs(profit)).toLocaleString()}
                           </span>
                         ) : (
                           <span className="text-muted-foreground">-</span>

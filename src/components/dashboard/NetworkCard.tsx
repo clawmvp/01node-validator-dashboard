@@ -118,7 +118,7 @@ export function NetworkCard({ network, showProfitability = true }: NetworkCardPr
                 Staked
               </span>
               <span className="font-medium">
-                {network.stake.amount.toLocaleString()} {network.token}
+                {Math.round(network.stake.amount).toLocaleString()} {network.token}
               </span>
             </div>
             <div className="flex justify-between items-center text-sm">
@@ -127,7 +127,7 @@ export function NetworkCard({ network, showProfitability = true }: NetworkCardPr
                 Value
               </span>
               <span className="font-medium">
-                ${network.stake.usdValue.toLocaleString()}
+                ${Math.round(network.stake.usdValue).toLocaleString()}
               </span>
             </div>
           </div>
@@ -158,7 +158,7 @@ export function NetworkCard({ network, showProfitability = true }: NetworkCardPr
             <div className="flex justify-between items-center text-sm">
               <span className="text-muted-foreground">Est. Monthly Revenue</span>
               <span className="font-medium text-emerald-600">
-                ${network.estimatedMonthlyRevenue.toLocaleString()}
+                ${Math.round(network.estimatedMonthlyRevenue).toLocaleString()}
               </span>
             </div>
             {network.infrastructureCost !== undefined && (
@@ -166,7 +166,7 @@ export function NetworkCard({ network, showProfitability = true }: NetworkCardPr
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground">Infrastructure Cost</span>
                   <span className="font-medium text-red-500">
-                    -${network.infrastructureCost.toLocaleString()}
+                    -${Math.round(network.infrastructureCost).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-sm font-semibold">
@@ -175,7 +175,7 @@ export function NetworkCard({ network, showProfitability = true }: NetworkCardPr
                     isProfitable ? "text-emerald-600" : "text-red-500"
                   )}>
                     {isProfitable ? <TrendingUp className="w-4 h-4 inline mr-1" /> : <TrendingDown className="w-4 h-4 inline mr-1" />}
-                    ${Math.abs((network.estimatedMonthlyRevenue || 0) - (network.infrastructureCost || 0)).toLocaleString()}
+                    ${Math.round(Math.abs((network.estimatedMonthlyRevenue || 0) - (network.infrastructureCost || 0))).toLocaleString()}
                     {profitMargin !== null && (
                       <span className="text-xs ml-1">({profitMargin > 0 ? '+' : ''}{profitMargin.toFixed(0)}%)</span>
                     )}
