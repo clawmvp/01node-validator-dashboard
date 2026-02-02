@@ -6,6 +6,7 @@ import { MetricsCards } from '@/components/dashboard/MetricsCards';
 import { NetworkCard } from '@/components/dashboard/NetworkCard';
 import { StakeDistributionChart } from '@/components/dashboard/StakeDistributionChart';
 import { RevenueChart } from '@/components/dashboard/RevenueChart';
+import { APRChart } from '@/components/dashboard/APRChart';
 import { NetworksTable } from '@/components/dashboard/NetworksTable';
 import { ChainlinkCard } from '@/components/dashboard/ChainlinkCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -276,10 +277,20 @@ export default function Dashboard() {
           </TabsContent>
 
           {/* Charts View */}
-          <TabsContent value="charts" className="space-y-6">
+          <TabsContent value="charts" className="space-y-8">
+            {/* Section Header */}
+            <div className="mb-6">
+              <h2 className="text-3xl font-bold tracking-tight">Analytics & Insights</h2>
+              <p className="text-muted-foreground mt-2">
+                Visual breakdown of validator performance metrics across all networks
+              </p>
+            </div>
+
+            {/* Charts Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <StakeDistributionChart networks={networks} />
               <RevenueChart networks={networks} />
+              <APRChart networks={networks} />
             </div>
           </TabsContent>
 

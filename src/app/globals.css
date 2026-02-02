@@ -79,6 +79,13 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* Chart-specific color variables */
+  --chart-success-500: oklch(0.646 0.222 141.116); /* emerald-500 */
+  --chart-success-400: oklch(0.696 0.17 141.48);
+  --chart-success-600: oklch(0.577 0.245 141.325);
+  --chart-warning-500: oklch(0.828 0.189 84.429); /* yellow-500 */
+  --chart-danger-500: oklch(0.577 0.245 27.325); /* orange-500 */
+  --chart-gray-500: oklch(0.556 0 0); /* gray-500 */
 }
 
 .dark {
@@ -113,6 +120,13 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  /* Chart-specific color variables - dark mode */
+  --chart-success-500: oklch(0.696 0.17 141.48);
+  --chart-success-400: oklch(0.746 0.15 141.32);
+  --chart-success-600: oklch(0.646 0.222 141.116);
+  --chart-warning-500: oklch(0.769 0.188 70.08);
+  --chart-danger-500: oklch(0.704 0.191 22.216);
+  --chart-gray-500: oklch(0.708 0 0);
 }
 
 @layer base {
@@ -149,5 +163,18 @@
   
   .section-title {
     @apply text-2xl font-semibold tracking-tight;
+  }
+  
+  /* Chart utilities */
+  .chart-gradient-success {
+    @apply bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent;
+  }
+  
+  .chart-card {
+    @apply shadow-lg hover:shadow-xl transition-all duration-300 border-border/50;
+  }
+  
+  .chart-icon-wrapper {
+    @apply p-2 rounded-lg bg-emerald-500/10;
   }
 }

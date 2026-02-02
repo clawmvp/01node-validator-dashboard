@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Network } from '@/types/network';
@@ -12,7 +13,7 @@ interface RevenueChartProps {
 
 export function RevenueChart({ networks }: RevenueChartProps) {
   // Filter networks with revenue data and sort by revenue
-  const chartData = networks
+  const chartData = useMemo(() => networks
     .filter(n => n.status === 'active' && (n.estimatedMonthlyRevenue || n.stake?.usdValue))
     .map(n => {
       // If we have estimated revenue, use it
@@ -35,27 +36,36 @@ export function RevenueChart({ networks }: RevenueChartProps) {
     })
     .filter(n => n.revenue > 0)
     .sort((a, b) => b.revenue - a.revenue)
-    .slice(0, 15); // Top 15 by revenue
+    .slice(0, 15), [networks]); // Top 15 by revenue
 
-  const getBarColor = (revenue: number, hasLiveData: boolean) => {
-    if (!hasLiveData) return '#6b7280'; // gray for estimated
-    if (revenue >= 5000) return '#10b981'; // emerald-500
-    if (revenue >= 2000) return '#22c55e'; // green-500
-    if (revenue >= 1000) return '#84cc16'; // lime-500
-    if (revenue >= 500) return '#eab308'; // yellow-500
-    return '#f97316'; // orange-500
+  const getBarColor = (revenue: number, hasLiveData: boolean): string => {
+    if (!hasLiveData) return 'hsl(var(--chart-gray-500))';
+    if (revenue >= 5000) return 'hsl(var(--chart-success-500))';
+    if (revenue >= 2000) return 'hsl(var(--chart-success-400))';
+    if (revenue >= 1000) return 'hsl(var(--chart-3))'; // lime
+    if (revenue >= 500) return 'hsl(var(--chart-warning-500))';
+    return 'hsl(var(--chart-danger-500))';
   };
 
-  const totalRevenue = chartData.reduce((sum, n) => sum + n.revenue, 0);
+  const totalRevenue = useMemo(() => chartData.reduce((sum, n) => sum + n.revenue, 0), [chartData]);
 
   if (chartData.length === 0) {
     return (
-      <Card className="col-span-1 lg:col-span-2">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <DollarSign className="w-5 h-5" />
-            Monthly Revenue by Network
-          </CardTitle>
+      <Card className="col-span-1 lg:col-span-2 chart-card bg-gradient-to-br from-card to-card/95 backdrop-blur-sm">
+        <CardHeader className="pb-4 border-b border-border/50">
+          <div className="flex items-center gap-3">
+            <div className="chart-icon-wrapper">
+              <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <div>
+              <CardTitle className="text-xl font-bold tracking-tight">
+                Monthly Revenue by Network
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                Estimated monthly revenue from validator commissions
+              </p>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="h-[400px] flex items-center justify-center text-muted-foreground">
@@ -67,40 +77,71 @@ export function RevenueChart({ networks }: RevenueChartProps) {
   }
 
   return (
-    <Card className="col-span-1 lg:col-span-2">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <DollarSign className="w-5 h-5" />
-            Monthly Revenue by Network (Top 15)
-          </CardTitle>
+    <Card className="col-span-1 lg:col-span-2 chart-card bg-gradient-to-br from-card to-card/95 backdrop-blur-sm">
+      <CardHeader className="pb-4 border-b border-border/50">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-3">
+            <div className="chart-icon-wrapper">
+              <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <div>
+              <CardTitle className="text-xl font-bold tracking-tight flex items-center gap-2">
+                Monthly Revenue by Network
+                <span className="text-sm font-normal text-muted-foreground">(Top 15)</span>
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                Estimated monthly revenue from validator commissions
+              </p>
+            </div>
+          </div>
           <div className="text-right">
-            <p className="text-2xl font-bold text-emerald-600">
+            <p className="text-3xl font-bold chart-gradient-success">
               {formatCurrency(totalRevenue)}
             </p>
-            <p className="text-xs text-muted-foreground">Est. Total Monthly</p>
+            <p className="text-xs text-muted-foreground mt-1">Est. Total Monthly</p>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="h-[400px]">
+        <div className="h-[400px] sm:h-[450px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={chartData}
               layout="vertical"
-              margin={{ top: 5, right: 30, left: 60, bottom: 5 }}
+              margin={{ top: 10, right: 30, left: 80, bottom: 10 }}
             >
-              <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
+              <defs>
+                {chartData.map((entry, index) => {
+                  const color = getBarColor(entry.revenue, entry.hasLiveData);
+                  const lighterColor = color.replace(')', ' / 0.8)').replace('hsl(', 'hsla(');
+                  return (
+                    <linearGradient key={`gradient-${index}`} id={`gradient-${index}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={lighterColor} stopOpacity={0.9} />
+                      <stop offset="100%" stopColor={color} stopOpacity={1} />
+                    </linearGradient>
+                  );
+                })}
+              </defs>
+              <CartesianGrid 
+                strokeDasharray="3 3" 
+                horizontal={true} 
+                vertical={false}
+                stroke="hsl(var(--border))"
+                opacity={0.3}
+              />
               <XAxis 
                 type="number" 
                 domain={[0, 'auto']}
                 tickFormatter={(value) => formatCurrency(value)}
+                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                axisLine={{ stroke: 'hsl(var(--border))' }}
               />
               <YAxis 
                 type="category" 
                 dataKey="name" 
-                width={50}
-                tick={{ fontSize: 12 }}
+                width={80}
+                tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
+                axisLine={{ stroke: 'hsl(var(--border))' }}
               />
               <Tooltip
                 formatter={(value) => [formatCurrency(Number(value)), 'Monthly Revenue']}
@@ -111,14 +152,28 @@ export function RevenueChart({ networks }: RevenueChartProps) {
                 contentStyle={{
                   backgroundColor: 'hsl(var(--card))',
                   border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
+                  boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+                  padding: '12px 16px',
                 }}
+                labelStyle={{
+                  fontWeight: 600,
+                  marginBottom: '4px',
+                  color: 'hsl(var(--foreground))',
+                }}
+                cursor={{ fill: 'hsl(var(--muted))', opacity: 0.1 }}
               />
-              <Bar dataKey="revenue" radius={[0, 4, 4, 0]}>
+              <Bar 
+                dataKey="revenue" 
+                radius={[0, 8, 8, 0]}
+                animationDuration={800}
+                animationBegin={0}
+              >
                 {chartData.map((entry, index) => (
                   <Cell 
                     key={`cell-${index}`} 
-                    fill={getBarColor(entry.revenue, entry.hasLiveData)} 
+                    fill={`url(#gradient-${index})`}
+                    className="transition-opacity duration-300 hover:opacity-80"
                   />
                 ))}
               </Bar>
@@ -126,27 +181,35 @@ export function RevenueChart({ networks }: RevenueChartProps) {
           </ResponsiveContainer>
         </div>
         
-        {/* Revenue Legend */}
-        <div className="flex flex-wrap gap-4 mt-4 justify-center">
+        {/* Enhanced Legend */}
+        <div className="flex flex-wrap gap-4 mt-6 justify-center p-4 bg-muted/30 rounded-lg">
           {[
-            { label: '$5,000+', color: '#10b981' },
-            { label: '$2,000-5,000', color: '#22c55e' },
-            { label: '$1,000-2,000', color: '#84cc16' },
-            { label: '$500-1,000', color: '#eab308' },
-            { label: '<$500', color: '#f97316' },
-            { label: 'Estimated', color: '#6b7280' },
+            { label: '$5,000+', color: 'hsl(var(--chart-success-500))' },
+            { label: '$2,000-5,000', color: 'hsl(var(--chart-success-400))' },
+            { label: '$1,000-2,000', color: 'hsl(var(--chart-3))' },
+            { label: '$500-1,000', color: 'hsl(var(--chart-warning-500))' },
+            { label: '<$500', color: 'hsl(var(--chart-danger-500))' },
+            { label: 'Estimated', color: 'hsl(var(--chart-gray-500))' },
           ].map((item) => (
-            <div key={item.label} className="flex items-center gap-2 text-sm">
+            <div 
+              key={item.label} 
+              className="flex items-center gap-2 text-sm group cursor-pointer transition-colors"
+            >
               <div 
-                className="w-3 h-3 rounded" 
-                style={{ backgroundColor: item.color }}
+                className="w-4 h-4 rounded transition-transform group-hover:scale-110" 
+                style={{ 
+                  backgroundColor: item.color,
+                  boxShadow: `0 2px 8px ${item.color}40`
+                }}
               />
-              <span className="text-muted-foreground">{item.label}</span>
+              <span className="text-muted-foreground group-hover:text-foreground transition-colors">
+                {item.label}
+              </span>
             </div>
           ))}
         </div>
         
-        <p className="text-xs text-muted-foreground text-center mt-3">
+        <p className="text-xs text-muted-foreground text-center mt-4">
           Revenue = Stake × APR ÷ 12 × Commission Rate
         </p>
       </CardContent>
