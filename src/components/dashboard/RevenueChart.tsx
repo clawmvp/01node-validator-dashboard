@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Network } from '@/types/network';
 import { DollarSign } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
 
 interface RevenueChartProps {
   networks: Network[];
@@ -75,7 +76,7 @@ export function RevenueChart({ networks }: RevenueChartProps) {
           </CardTitle>
           <div className="text-right">
             <p className="text-2xl font-bold text-emerald-600">
-              ${totalRevenue.toLocaleString()}
+              {formatCurrency(totalRevenue)}
             </p>
             <p className="text-xs text-muted-foreground">Est. Total Monthly</p>
           </div>
@@ -93,7 +94,7 @@ export function RevenueChart({ networks }: RevenueChartProps) {
               <XAxis 
                 type="number" 
                 domain={[0, 'auto']}
-                tickFormatter={(value) => `$${value.toLocaleString()}`}
+                tickFormatter={(value) => formatCurrency(value)}
               />
               <YAxis 
                 type="category" 
@@ -102,7 +103,7 @@ export function RevenueChart({ networks }: RevenueChartProps) {
                 tick={{ fontSize: 12 }}
               />
               <Tooltip
-                formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Monthly Revenue']}
+                formatter={(value) => [formatCurrency(Number(value)), 'Monthly Revenue']}
                 labelFormatter={(label) => {
                   const item = chartData.find(d => d.name === label);
                   return item?.fullName || String(label);

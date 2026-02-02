@@ -10,7 +10,7 @@ import {
   Activity
 } from 'lucide-react';
 import { NetworkMetrics } from '@/types/network';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 
 interface MetricsCardsProps {
   metrics: NetworkMetrics;
@@ -20,7 +20,7 @@ export function MetricsCards({ metrics }: MetricsCardsProps) {
   const cards = [
     {
       title: 'Total Stake Value',
-      value: `$${Math.round(metrics.totalStakeUsd).toLocaleString()}`,
+      value: formatCurrency(metrics.totalStakeUsd),
       subtitle: 'Across all networks',
       icon: Coins,
       trend: '+12.5%',
@@ -38,7 +38,7 @@ export function MetricsCards({ metrics }: MetricsCardsProps) {
     },
     {
       title: 'Est. Monthly Revenue',
-      value: `$${Math.round(metrics.estimatedMonthlyRevenue).toLocaleString()}`,
+      value: formatCurrency(metrics.estimatedMonthlyRevenue),
       subtitle: 'Before costs',
       icon: DollarSign,
       trend: '+8.3%',
@@ -48,7 +48,7 @@ export function MetricsCards({ metrics }: MetricsCardsProps) {
     },
     {
       title: 'Est. Yearly Revenue',
-      value: `$${Math.round(metrics.estimatedYearlyRevenue).toLocaleString()}`,
+      value: formatCurrency(metrics.estimatedYearlyRevenue),
       subtitle: 'Projected',
       icon: TrendingUp,
       color: 'text-purple-600',

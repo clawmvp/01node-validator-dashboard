@@ -26,6 +26,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { ChainlinkPayment } from '@/lib/api/chainlink';
+import { formatNumber, formatCurrency } from '@/lib/utils';
 
 interface ChainlinkStats {
   totalReceived: number;
@@ -216,12 +217,12 @@ export function ChainlinkCard() {
               Current Balance
             </div>
             <p className="text-3xl font-bold tracking-tight">
-              {stats.currentBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              {formatNumber(stats.currentBalance)}
             </p>
             <p className="text-sm text-muted-foreground font-medium">LINK</p>
             {stats.currentBalanceUsd && (
               <p className="text-sm text-muted-foreground mt-1">
-                ≈ ${stats.currentBalanceUsd.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                ≈ {formatCurrency(stats.currentBalanceUsd)}
               </p>
             )}
           </div>
@@ -232,7 +233,7 @@ export function ChainlinkCard() {
               Total Received
             </div>
             <p className="text-3xl font-bold tracking-tight text-emerald-600">
-              {stats.totalReceived.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              {formatNumber(stats.totalReceived)}
             </p>
             <p className="text-sm text-emerald-600/80 font-medium">LINK</p>
             <p className="text-sm text-muted-foreground mt-1">
@@ -246,12 +247,12 @@ export function ChainlinkCard() {
               Last 30 Days
             </div>
             <p className="text-3xl font-bold tracking-tight text-blue-600">
-              {stats.last30Days.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              {formatNumber(stats.last30Days)}
             </p>
             <p className="text-sm text-blue-600/80 font-medium">LINK</p>
             {stats.linkPrice && (
               <p className="text-sm text-muted-foreground mt-1">
-                ≈ ${(stats.last30Days * stats.linkPrice).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                ≈ {formatCurrency(stats.last30Days * stats.linkPrice)}
               </p>
             )}
           </div>
@@ -296,11 +297,11 @@ export function ChainlinkCard() {
             </span>
             <div className="text-right">
               <span className="text-xl font-bold text-blue-600">
-                {Math.round(periodTotal).toLocaleString()} LINK
+                {formatNumber(periodTotal)} LINK
               </span>
               {stats.linkPrice && (
                 <span className="text-sm text-muted-foreground ml-2">
-                  (${(periodTotal * stats.linkPrice).toLocaleString(undefined, { maximumFractionDigits: 0 })})
+                  ({formatCurrency(periodTotal * stats.linkPrice)})
                 </span>
               )}
             </div>
@@ -327,7 +328,7 @@ export function ChainlinkCard() {
                 />
                 <Tooltip
                   formatter={(value) => [
-                    `${Math.round(Number(value)).toLocaleString()} LINK`,
+                    `${formatNumber(Number(value))} LINK`,
                     'Amount'
                   ]}
                   labelFormatter={(label) => new Date(label).toLocaleDateString()}
@@ -390,11 +391,11 @@ export function ChainlinkCard() {
                         {new Date(payment.timestamp).toLocaleDateString()}
                       </td>
                       <td className="p-3 text-right font-medium text-emerald-600">
-                        +{Math.round(payment.amount).toLocaleString()} LINK
+                        +{formatNumber(payment.amount)} LINK
                       </td>
                       <td className="p-3 text-right text-muted-foreground">
                         {stats.linkPrice 
-                          ? `$${(payment.amount * stats.linkPrice).toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                          ? formatCurrency(payment.amount * stats.linkPrice)
                           : '-'
                         }
                       </td>

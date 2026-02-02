@@ -29,7 +29,7 @@ import {
   TrendingDown,
   Minus
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 
 interface NetworksTableProps {
   networks: Network[];
@@ -217,7 +217,7 @@ export function NetworksTable({ networks }: NetworksTableProps) {
                       <TableCell className="text-right">
                         {network.stake ? (
                           <span className="font-medium">
-                            ${Math.round(network.stake.usdValue).toLocaleString()}
+                            {formatCurrency(network.stake.usdValue)}
                           </span>
                         ) : (
                           <span className="text-muted-foreground">-</span>
@@ -226,7 +226,7 @@ export function NetworksTable({ networks }: NetworksTableProps) {
                       <TableCell className="text-right">
                         {network.estimatedMonthlyRevenue ? (
                           <span className="font-medium text-emerald-600">
-                            ${Math.round(network.estimatedMonthlyRevenue).toLocaleString()}
+                            {formatCurrency(network.estimatedMonthlyRevenue)}
                           </span>
                         ) : (
                           <span className="text-muted-foreground">-</span>
@@ -245,7 +245,7 @@ export function NetworksTable({ networks }: NetworksTableProps) {
                             ) : (
                               <Minus className="w-4 h-4" />
                             )}
-                            ${Math.round(Math.abs(profit)).toLocaleString()}
+                            {formatCurrency(Math.abs(profit))}
                           </span>
                         ) : (
                           <span className="text-muted-foreground">-</span>
