@@ -43,21 +43,12 @@ export function StakeDistributionChart({ networks }: StakeDistributionChartProps
     : chartData.map(d => ({ ...d, value: d.count })), [chartData, hasStakeData]);
 
   return (
-    <Card className="col-span-1 chart-card bg-gradient-to-br from-card to-card/95 backdrop-blur-sm">
-      <CardHeader className="pb-4 border-b border-border/50">
-        <div className="flex items-center gap-3">
-          <div className="chart-icon-wrapper">
-            <PieChartIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <div>
-            <CardTitle className="text-xl font-bold tracking-tight">
-              {hasStakeData ? 'Stake Distribution by Ecosystem' : 'Networks by Ecosystem'}
-            </CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">
-              {hasStakeData ? 'Total stake value across ecosystems' : 'Network count per ecosystem'}
-            </p>
-          </div>
-        </div>
+    <Card className="col-span-1">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <PieChartIcon className="w-5 h-5 text-emerald-600" />
+          {hasStakeData ? 'Stake by Ecosystem' : 'Networks by Ecosystem'}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
@@ -91,15 +82,17 @@ export function StakeDistributionChart({ networks }: StakeDistributionChartProps
                   String(name)
                 ]}
                 contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '12px',
-                  boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
-                  padding: '12px 16px',
+                  backgroundColor: '#1f2937',
+                  border: '1px solid #374151',
+                  borderRadius: '8px',
+                  padding: '8px 12px',
                 }}
                 labelStyle={{
                   fontWeight: 600,
-                  color: 'hsl(var(--foreground))',
+                  color: '#f9fafb',
+                }}
+                itemStyle={{
+                  color: '#f9fafb',
                 }}
               />
             </PieChart>
