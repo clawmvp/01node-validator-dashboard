@@ -5,3 +5,4 @@ export * from './solana';
 export * from './sui';
 export * from './prices';
 export * from './aggregator';
+export * from './chainlink';

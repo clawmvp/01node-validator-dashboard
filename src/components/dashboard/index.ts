@@ -5,3 +5,4 @@ export { StakeDistributionChart } from './StakeDistributionChart';
 export { APRChart } from './APRChart';
 export { RevenueChart } from './RevenueChart';
 export { NetworksTable } from './NetworksTable';
+export { ChainlinkCard } from './ChainlinkCard';

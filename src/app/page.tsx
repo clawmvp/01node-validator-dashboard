@@ -7,6 +7,7 @@ import { NetworkCard } from '@/components/dashboard/NetworkCard';
 import { StakeDistributionChart } from '@/components/dashboard/StakeDistributionChart';
 import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { NetworksTable } from '@/components/dashboard/NetworksTable';
+import { ChainlinkCard } from '@/components/dashboard/ChainlinkCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -25,7 +26,8 @@ import {
   ArrowDownWideNarrow,
   Coins,
   DollarSign,
-  Percent
+  Percent,
+  Link2
 } from 'lucide-react';
 
 type SortBy = 'stake' | 'revenue' | 'apr';
@@ -179,6 +181,10 @@ export default function Dashboard() {
               <BarChart3 className="w-4 h-4" />
               Charts
             </TabsTrigger>
+            <TabsTrigger value="chainlink" className="flex items-center gap-2">
+              <Link2 className="w-4 h-4" />
+              Chainlink
+            </TabsTrigger>
           </TabsList>
 
           {/* Grid View */}
@@ -276,6 +282,11 @@ export default function Dashboard() {
               <StakeDistributionChart networks={networks} />
               <RevenueChart networks={networks} />
             </div>
+          </TabsContent>
+
+          {/* Chainlink View */}
+          <TabsContent value="chainlink" className="space-y-6">
+            <ChainlinkCard />
           </TabsContent>
         </Tabs>
 
