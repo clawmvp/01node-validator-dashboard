@@ -21,6 +21,8 @@ const COSMOS_NETWORKS = [
   'sentinel',
   'quicksilver',
   'dymension',
+  'neutron',
+  'lava',
   'irisnet',
 ];
 

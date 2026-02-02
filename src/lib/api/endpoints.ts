@@ -57,6 +57,17 @@ export const ENDPOINTS = {
     lcd: 'https://dymension-rest.publicnode.com',
     rpc: 'https://dymension-rpc.publicnode.com',
     chainId: 'dymension_1100-1',
+    decimals: 18, // adym uses 18 decimals
+  },
+  neutron: {
+    lcd: 'https://rest-lb.neutron.org',
+    rpc: 'https://rpc-lb.neutron.org',
+    chainId: 'neutron-1',
+  },
+  lava: {
+    lcd: 'https://lava-api.polkachu.com',
+    rpc: 'https://lava-rpc.polkachu.com',
+    chainId: 'lava-mainnet-1',
   },
   irisnet: {
     lcd: 'https://lcd-irisnet.keplr.app',
@@ -103,6 +114,9 @@ export const VALIDATOR_ADDRESSES = {
   regen: 'regenvaloper1xk5hddxck0tevelchlvcq93waqd07antxvksph',
   sentinel: 'sentvaloper1gcx3cq450dgmyha7s3x5mhjqcnxxn40tqykq20',
   quicksilver: 'quickvaloper1dqnwnf3rj8xwd82qra0v5zzkxd9szawy30k6fn',
+  dymension: 'dymvaloper1ycsjsqqucdyvl2560y7y2yhfjaj0vvta4v7hm3',
+  neutron: 'neutronvaloper17mggn4znyeyg25wd7498qxl7r2jhgue88ryugs',
+  lava: 'lavavaloper1askl4xtuwgt9ngll0unjp975fgk954y2fjpdc2',
   irisnet: 'iva1nzgvvfam8n4lskkcqmhes07td6wkum9cffvkkx',
   solana: 'BH7asDZbKkTmT3UWiNfmMVRgQEEpXoVThGPmQfgWwDhg',
   sui: '0x876e2ad4ba0375c7752d24ca47c69e7096e6dbfd82a215612a08f47cffebcfbc',
@@ -121,6 +135,8 @@ export const COINGECKO_IDS: Record<string, string> = {
   sentinel: 'sentinel',
   quicksilver: 'quicksilver',
   dymension: 'dymension',
+  neutron: 'neutron-3',
+  lava: 'lava-network',
   irisnet: 'iris-network',
   solana: 'solana',
   sui: 'sui',
