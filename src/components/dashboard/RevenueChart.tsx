@@ -117,9 +117,19 @@ export function RevenueChart({ networks }: RevenueChartProps) {
                   return item?.fullName || String(label);
                 }}
                 contentStyle={{
+                  backgroundColor: '#1f2937',
+                  border: '1px solid #374151',
                   borderRadius: '8px',
                   padding: '8px 12px',
                 }}
+                labelStyle={{
+                  color: '#f9fafb',
+                  fontWeight: 600,
+                }}
+                itemStyle={{
+                  color: '#f9fafb',
+                }}
+                cursor={false}
               />
               <Bar 
                 dataKey="revenue" 
