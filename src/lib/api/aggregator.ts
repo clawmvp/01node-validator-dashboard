@@ -1,0 +1,230 @@
+// Aggregator service - fetches data from all sources and combines them
+
+import { fetchCompleteCosmosValidator, ValidatorData } from './cosmos';
+import { fetchSolanaValidator, SolanaValidatorData } from './solana';
+import { fetchSuiValidator, SuiValidatorData } from './sui';
+import { fetchAllPrices, PricesMap, calculateUsdValue } from './prices';
+import { COINGECKO_IDS, VALIDATOR_ADDRESSES } from './endpoints';
+import { networks } from '@/data/networks';
+import { Network, NetworkMetrics } from '@/types/network';
+
+// Networks with Cosmos SDK that we can query
+const COSMOS_NETWORKS = [
+  'cosmos',
+  'osmosis', 
+  'celestia',
+  'juno',
+  'secret',
+  'persistence',
+  'agoric',
+  'regen',
+  'sentinel',
+  'quicksilver',
+  'dymension',
+  'irisnet',
+];
+
+export interface AggregatedData {
+  networks: Network[];
+  metrics: NetworkMetrics;
+  lastUpdated: string;
+  errors: string[];
+}
+
+/**
+ * Fetch all validator data from blockchain APIs
+ */
+export async function fetchAllValidatorData(): Promise<{
+  cosmos: Record<string, ValidatorData | null>;
+  solana: SolanaValidatorData | null;
+  sui: SuiValidatorData | null;
+  errors: string[];
+}> {
+  const errors: string[] = [];
+  
+  // Fetch Cosmos validators in parallel
+  const cosmosPromises = COSMOS_NETWORKS.map(async (networkId) => {
+    if (!VALIDATOR_ADDRESSES[networkId as keyof typeof VALIDATOR_ADDRESSES]) {
+      return { networkId, data: null };
+    }
+    try {
+      const data = await fetchCompleteCosmosValidator(networkId);
+      return { networkId, data };
+    } catch (error) {
+      errors.push(`Failed to fetch ${networkId}: ${error}`);
+      return { networkId, data: null };
+    }
+  });
+
+  const cosmosResults = await Promise.all(cosmosPromises);
+  const cosmosData: Record<string, ValidatorData | null> = {};
+  cosmosResults.forEach(({ networkId, data }) => {
+    cosmosData[networkId] = data;
+  });
+
+  // Fetch Solana
+  let solanaData: SolanaValidatorData | null = null;
+  try {
+    solanaData = await fetchSolanaValidator();
+  } catch (error) {
+    errors.push(`Failed to fetch Solana: ${error}`);
+  }
+
+  // Fetch SUI
+  let suiData: SuiValidatorData | null = null;
+  try {
+    suiData = await fetchSuiValidator();
+  } catch (error) {
+    errors.push(`Failed to fetch SUI: ${error}`);
+  }
+
+  return {
+    cosmos: cosmosData,
+    solana: solanaData,
+    sui: suiData,
+    errors,
+  };
+}
+
+/**
+ * Aggregate all data and update network objects
+ */
+export async function aggregateAllData(): Promise<AggregatedData> {
+  const errors: string[] = [];
+  
+  // Fetch validator data and prices in parallel
+  const [validatorData, prices] = await Promise.all([
+    fetchAllValidatorData(),
+    fetchAllPrices(),
+  ]);
+
+  errors.push(...validatorData.errors);
+
+  // Clone networks and update with live data
+  const updatedNetworks: Network[] = networks.map((network) => {
+    const updated = { ...network };
+    
+    // Get price for this network
+    const coingeckoId = COINGECKO_IDS[network.id];
+    const price = coingeckoId ? prices[coingeckoId]?.usd : undefined;
+
+    // Update Cosmos networks
+    if (COSMOS_NETWORKS.includes(network.id)) {
+      const data = validatorData.cosmos[network.id];
+      if (data) {
+        updated.commission = data.commission;
+        updated.rank = data.rank;
+        updated.totalValidators = data.totalValidators;
+        
+        if (price) {
+          updated.stake = {
+            amount: data.tokens,
+            usdValue: calculateUsdValue(data.tokens, price),
+          };
+          
+          // Estimate monthly revenue (tokens * APR / 12 * commission_earned)
+          if (updated.apr) {
+            const avgApr = (updated.apr.min + updated.apr.max) / 2 / 100;
+            const monthlyRewardTokens = data.tokens * avgApr / 12;
+            const commissionEarned = monthlyRewardTokens * (data.commission / 100);
+            updated.estimatedMonthlyRevenue = calculateUsdValue(commissionEarned, price);
+            updated.estimatedYearlyRevenue = updated.estimatedMonthlyRevenue * 12;
+          }
+        }
+      }
+    }
+
+    // Update Solana
+    if (network.id === 'solana' && validatorData.solana) {
+      const data = validatorData.solana;
+      updated.commission = data.commission;
+      updated.rank = data.rank;
+      updated.totalValidators = data.totalValidators;
+      
+      if (price) {
+        updated.stake = {
+          amount: data.activatedStake,
+          usdValue: calculateUsdValue(data.activatedStake, price),
+        };
+        
+        // Solana commission is on rewards, not stake
+        // Estimate: stake * APR * commission
+        if (updated.apr) {
+          const avgApr = (updated.apr.min + updated.apr.max) / 2 / 100;
+          const monthlyRewardTokens = data.activatedStake * avgApr / 12;
+          const commissionEarned = monthlyRewardTokens * (data.commission / 100);
+          updated.estimatedMonthlyRevenue = calculateUsdValue(commissionEarned, price);
+          updated.estimatedYearlyRevenue = updated.estimatedMonthlyRevenue * 12;
+        }
+      }
+    }
+
+    // Update SUI
+    if (network.id === 'sui' && validatorData.sui) {
+      const data = validatorData.sui;
+      updated.commission = data.commissionRate;
+      updated.rank = data.rank;
+      updated.totalValidators = data.totalValidators;
+      
+      // Update APR from live data if available
+      if (data.apy) {
+        updated.apr = { min: data.apy, max: data.apy };
+      }
+      
+      if (price) {
+        updated.stake = {
+          amount: data.stakingPoolSuiBalance,
+          usdValue: calculateUsdValue(data.stakingPoolSuiBalance, price),
+        };
+        
+        if (updated.apr) {
+          const avgApr = (updated.apr.min + updated.apr.max) / 2 / 100;
+          const monthlyRewardTokens = data.stakingPoolSuiBalance * avgApr / 12;
+          const commissionEarned = monthlyRewardTokens * (data.commissionRate / 100);
+          updated.estimatedMonthlyRevenue = calculateUsdValue(commissionEarned, price);
+          updated.estimatedYearlyRevenue = updated.estimatedMonthlyRevenue * 12;
+        }
+      }
+    }
+
+    return updated;
+  });
+
+  // Calculate metrics
+  const activeNetworks = updatedNetworks.filter(n => n.status === 'active');
+  const networksWithStake = activeNetworks.filter(n => n.stake?.usdValue);
+  const networksWithApr = activeNetworks.filter(n => n.apr);
+  
+  const totalStakeUsd = networksWithStake.reduce(
+    (sum, n) => sum + (n.stake?.usdValue || 0), 
+    0
+  );
+  
+  const avgApr = networksWithApr.length > 0
+    ? networksWithApr.reduce(
+        (sum, n) => sum + ((n.apr!.min + n.apr!.max) / 2), 
+        0
+      ) / networksWithApr.length
+    : 0;
+
+  const estimatedMonthlyRevenue = activeNetworks.reduce(
+    (sum, n) => sum + (n.estimatedMonthlyRevenue || 0),
+    0
+  );
+
+  const metrics: NetworkMetrics = {
+    totalStakeUsd,
+    totalNetworks: networks.length,
+    activeNetworks: activeNetworks.length,
+    estimatedMonthlyRevenue,
+    estimatedYearlyRevenue: estimatedMonthlyRevenue * 12,
+    avgApr,
+  };
+
+  return {
+    networks: updatedNetworks,
+    metrics,
+    lastUpdated: new Date().toISOString(),
+    errors,
+  };
+}

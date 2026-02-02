@@ -1,6 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
 import { Header } from '@/components/dashboard/Header';
 import { MetricsCards } from '@/components/dashboard/MetricsCards';
 import { NetworkCard } from '@/components/dashboard/NetworkCard';
@@ -9,45 +8,34 @@ import { APRChart } from '@/components/dashboard/APRChart';
 import { NetworksTable } from '@/components/dashboard/NetworksTable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { networks } from '@/data/networks';
-import { NetworkMetrics } from '@/types/network';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useValidatorData } from '@/hooks/useValidatorData';
 import { 
   LayoutGrid, 
   Table2, 
   BarChart3,
-  Info
+  Info,
+  RefreshCw,
+  AlertCircle,
+  CheckCircle2,
+  Clock
 } from 'lucide-react';
 
 export default function Dashboard() {
-  // Calculate metrics
-  const metrics: NetworkMetrics = useMemo(() => {
-    const activeNetworks = networks.filter(n => n.status === 'active');
-    
-    // Calculate total stake (placeholder - will be from API)
-    const totalStakeUsd = activeNetworks.reduce((sum, n) => sum + (n.stake?.usdValue || 0), 0);
-    
-    // Calculate average APR (only for networks with APR data)
-    const networksWithApr = activeNetworks.filter(n => n.apr);
-    const avgApr = networksWithApr.length > 0
-      ? networksWithApr.reduce((sum, n) => sum + ((n.apr!.min + n.apr!.max) / 2), 0) / networksWithApr.length
-      : 0;
-    
-    // Estimated revenue (placeholder calculation)
-    const estimatedMonthlyRevenue = activeNetworks.reduce((sum, n) => 
-      sum + (n.estimatedMonthlyRevenue || 0), 0);
-    
-    return {
-      totalStakeUsd: totalStakeUsd || 540000000, // From stakingrewards.com
-      totalNetworks: networks.length,
-      activeNetworks: activeNetworks.length,
-      estimatedMonthlyRevenue: estimatedMonthlyRevenue || 45000, // Placeholder
-      estimatedYearlyRevenue: (estimatedMonthlyRevenue || 45000) * 12,
-      avgApr,
-    };
-  }, []);
+  const { 
+    networks, 
+    metrics, 
+    isLoading, 
+    error, 
+    lastUpdated, 
+    apiErrors,
+    refresh 
+  } = useValidatorData();
 
   const activeNetworks = networks.filter(n => n.status === 'active');
   const comingSoonNetworks = networks.filter(n => n.status === 'coming_soon');
+  const networksWithLiveData = activeNetworks.filter(n => n.stake?.usdValue);
 
   return (
     <div className="min-h-screen bg-background">
@@ -56,18 +44,84 @@ export default function Dashboard() {
       <main className="container py-6 space-y-6">
         {/* Page Title */}
         <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold">Validator Analytics</h1>
-            <Badge variant="secondary">Beta</Badge>
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold">Validator Analytics</h1>
+              <Badge variant="secondary">Beta</Badge>
+            </div>
+            
+            {/* Data Status */}
+            <div className="flex items-center gap-3">
+              {isLoading ? (
+                <Badge variant="outline" className="flex items-center gap-1.5">
+                  <RefreshCw className="w-3 h-3 animate-spin" />
+                  Loading live data...
+                </Badge>
+              ) : error ? (
+                <Badge variant="destructive" className="flex items-center gap-1.5">
+                  <AlertCircle className="w-3 h-3" />
+                  Using cached data
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+                  <CheckCircle2 className="w-3 h-3" />
+                  Live data ({networksWithLiveData.length} networks)
+                </Badge>
+              )}
+              
+              {lastUpdated && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {new Date(lastUpdated).toLocaleTimeString()}
+                </span>
+              )}
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={refresh}
+                disabled={isLoading}
+              >
+                <RefreshCw className={`w-3 h-3 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+            </div>
           </div>
+          
           <p className="text-muted-foreground max-w-2xl">
             Monitor 01node validator performance across {metrics.activeNetworks} blockchain networks. 
             Track stake, APR, revenue, and profitability to optimize operations.
           </p>
         </div>
 
+        {/* API Errors Warning */}
+        {apiErrors.length > 0 && (
+          <div className="flex items-start gap-3 p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
+            <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-amber-600">Some APIs returned errors</p>
+              <ul className="text-xs text-amber-600/80 list-disc list-inside">
+                {apiErrors.slice(0, 5).map((err, i) => (
+                  <li key={i}>{err}</li>
+                ))}
+                {apiErrors.length > 5 && (
+                  <li>...and {apiErrors.length - 5} more errors</li>
+                )}
+              </ul>
+            </div>
+          </div>
+        )}
+
         {/* Metrics Overview */}
-        <MetricsCards metrics={metrics} />
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <Skeleton key={i} className="h-[120px] rounded-lg" />
+            ))}
+          </div>
+        ) : (
+          <MetricsCards metrics={metrics} />
+        )}
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="grid" className="space-y-4">
@@ -93,12 +147,26 @@ export default function Dashboard() {
               <div className="flex items-center gap-2 mb-4">
                 <h2 className="text-xl font-semibold">Active Networks</h2>
                 <Badge variant="outline">{activeNetworks.length}</Badge>
+                {networksWithLiveData.length > 0 && (
+                  <Badge variant="secondary" className="text-xs">
+                    {networksWithLiveData.length} with live data
+                  </Badge>
+                )}
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {activeNetworks.map((network) => (
-                  <NetworkCard key={network.id} network={network} />
-                ))}
-              </div>
+              
+              {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {[...Array(8)].map((_, i) => (
+                    <Skeleton key={i} className="h-[300px] rounded-lg" />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {activeNetworks.map((network) => (
+                    <NetworkCard key={network.id} network={network} />
+                  ))}
+                </div>
+              )}
             </section>
 
             {/* Coming Soon */}
@@ -131,22 +199,23 @@ export default function Dashboard() {
           </TabsContent>
         </Tabs>
 
-        {/* Data Notice */}
+        {/* API Documentation */}
         <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border">
           <Info className="w-5 h-5 text-muted-foreground mt-0.5" />
           <div className="space-y-1">
-            <p className="text-sm font-medium">Data Sources & Next Steps</p>
+            <p className="text-sm font-medium">Live Data Sources</p>
             <p className="text-sm text-muted-foreground">
-              This dashboard shows static data from 01node.com. To display live stake amounts, 
-              revenue estimates, and profitability analytics, API integrations are needed for:
+              This dashboard fetches live data from blockchain APIs:
             </p>
-            <ul className="text-sm text-muted-foreground list-disc list-inside">
-              <li>Cosmos ecosystem (via Mintscan API or direct chain queries)</li>
-              <li>Solana (via Solana Beach API or direct RPC)</li>
-              <li>Sui (via Suiscan API)</li>
-              <li>Token prices (via CoinGecko or similar)</li>
-              <li>Infrastructure costs (manual input or from your cost tracking system)</li>
+            <ul className="text-sm text-muted-foreground list-disc list-inside space-y-0.5">
+              <li><strong>Cosmos chains:</strong> LCD REST API <code className="text-xs bg-muted px-1 rounded">/cosmos/staking/v1beta1/validators</code></li>
+              <li><strong>Solana:</strong> RPC method <code className="text-xs bg-muted px-1 rounded">getVoteAccounts</code></li>
+              <li><strong>SUI:</strong> RPC method <code className="text-xs bg-muted px-1 rounded">suix_getLatestSuiSystemState</code></li>
+              <li><strong>Prices:</strong> CoinGecko API <code className="text-xs bg-muted px-1 rounded">/simple/price</code></li>
             </ul>
+            <p className="text-xs text-muted-foreground mt-2">
+              API endpoints: <code className="bg-muted px-1 rounded">/api/validators</code>, <code className="bg-muted px-1 rounded">/api/validators/[network]</code>, <code className="bg-muted px-1 rounded">/api/prices</code>
+            </p>
           </div>
         </div>
 
