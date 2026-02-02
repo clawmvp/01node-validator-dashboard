@@ -94,6 +94,14 @@ export const ENDPOINTS = {
   // === NEAR ===
   near: {
     rpc: 'https://rpc.mainnet.near.org',
+    rpcBackup: 'https://near.lava.build',
+  },
+  
+  // === SKALE ===
+  skale: {
+    // SKALE uses Ethereum mainnet contracts
+    // Data from Staking Rewards API or direct contract calls
+    stakingContract: '0x00c83aeCC790e8a4453e5dD3B0B4b3680501a7A7',
   },
   
   // === PRICE APIS ===
@@ -120,6 +128,7 @@ export const VALIDATOR_ADDRESSES = {
   irisnet: 'iva1nzgvvfam8n4lskkcqmhes07td6wkum9cffvkkx',
   solana: 'BH7asDZbKkTmT3UWiNfmMVRgQEEpXoVThGPmQfgWwDhg',
   sui: '0x876e2ad4ba0375c7752d24ca47c69e7096e6dbfd82a215612a08f47cffebcfbc',
+  near: '01node.poolv1.near',
 } as const;
 
 // CoinGecko token IDs for price lookup

@@ -391,7 +391,10 @@ export const networks: Network[] = [
     apr: { min: 8, max: 10 },
     status: 'active',
     ecosystem: 'near',
-    commission: 5,
+    validatorAddress: '01node.poolv1.near',
+    explorerUrl: 'https://explorer.mainnet.near.org/accounts/01node.poolv1.near',
+    stakeUrl: 'https://wallet.near.org/',
+    commission: 3,
   },
   
   // === OTHER ===

@@ -3,7 +3,8 @@
 import { fetchCompleteCosmosValidator, ValidatorData } from './cosmos';
 import { fetchSolanaValidator, SolanaValidatorData } from './solana';
 import { fetchSuiValidator, SuiValidatorData } from './sui';
-import { fetchAllPrices, PricesMap, calculateUsdValue } from './prices';
+import { fetchNearValidator, NearValidatorData } from './near';
+import { fetchAllPrices, calculateUsdValue } from './prices';
 import { COINGECKO_IDS, VALIDATOR_ADDRESSES } from './endpoints';
 import { networks } from '@/data/networks';
 import { Network, NetworkMetrics } from '@/types/network';
@@ -40,6 +41,7 @@ export async function fetchAllValidatorData(): Promise<{
   cosmos: Record<string, ValidatorData | null>;
   solana: SolanaValidatorData | null;
   sui: SuiValidatorData | null;
+  near: NearValidatorData | null;
   errors: string[];
 }> {
   const errors: string[] = [];
@@ -80,10 +82,19 @@ export async function fetchAllValidatorData(): Promise<{
     errors.push(`Failed to fetch SUI: ${error}`);
   }
 
+  // Fetch NEAR
+  let nearData: NearValidatorData | null = null;
+  try {
+    nearData = await fetchNearValidator();
+  } catch (error) {
+    errors.push(`Failed to fetch NEAR: ${error}`);
+  }
+
   return {
     cosmos: cosmosData,
     solana: solanaData,
     sui: suiData,
+    near: nearData,
     errors,
   };
 }
@@ -183,6 +194,28 @@ export async function aggregateAllData(): Promise<AggregatedData> {
           const avgApr = (updated.apr.min + updated.apr.max) / 2 / 100;
           const monthlyRewardTokens = data.stakingPoolSuiBalance * avgApr / 12;
           const commissionEarned = monthlyRewardTokens * (data.commissionRate / 100);
+          updated.estimatedMonthlyRevenue = calculateUsdValue(commissionEarned, price);
+          updated.estimatedYearlyRevenue = updated.estimatedMonthlyRevenue * 12;
+        }
+      }
+    }
+
+    // Update NEAR
+    if (network.id === 'near' && validatorData.near) {
+      const data = validatorData.near;
+      updated.commission = data.rewardFeeFraction;
+      
+      if (price) {
+        updated.stake = {
+          amount: data.totalStakedBalance,
+          usdValue: calculateUsdValue(data.totalStakedBalance, price),
+        };
+        
+        // NEAR commission is on rewards
+        if (updated.apr) {
+          const avgApr = (updated.apr.min + updated.apr.max) / 2 / 100;
+          const monthlyRewardTokens = data.totalStakedBalance * avgApr / 12;
+          const commissionEarned = monthlyRewardTokens * (data.rewardFeeFraction / 100);
           updated.estimatedMonthlyRevenue = calculateUsdValue(commissionEarned, price);
           updated.estimatedYearlyRevenue = updated.estimatedMonthlyRevenue * 12;
         }
