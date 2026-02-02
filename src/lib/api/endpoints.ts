@@ -95,7 +95,7 @@ export const ENDPOINTS = {
 export const VALIDATOR_ADDRESSES = {
   cosmos: 'cosmosvaloper17mggn4znyeyg25wd7498qxl7r2jhgue8u4qjcq',
   osmosis: 'osmovaloper17mggn4znyeyg25wd7498qxl7r2jhgue8td054x',
-  celestia: 'celestiavaloper1murrqgahxevedty0nzqrn5hj434fvffxufxcl',
+  celestia: 'celestiavaloper1murrqgqahxevedty0nzqrn5hj434fvffxufxcl',
   juno: 'junovaloper17mggn4znyeyg25wd7498qxl7r2jhgue8swpngk',
   secret: 'secretvaloper1larnhgur2ts7hlhphmtk65c3qz6dt52y79szst',
   persistence: 'persistencevaloper1etueaqe9teaamq40pln9xrncwgfns8mtdfr02c',

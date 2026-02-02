@@ -169,7 +169,7 @@ export async function fetchSuiValidator(): Promise<SuiValidatorData | null> {
             (a: SuiValidatorApy) => a.address === validatorAddress
           );
           if (validatorApy) {
-            apy = validatorApy.apy * 100; // Convert to percentage
+            apy = Math.round(validatorApy.apy * 100 * 100) / 100; // Convert to percentage and round to 2 decimals
           }
         }
       }
