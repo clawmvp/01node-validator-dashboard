@@ -378,13 +378,13 @@ export const networks: Network[] = [
     name: 'SKALE',
     token: 'SKL',
     logo: '/logos/skale.svg',
-    apr: { min: 10, max: 13 },
+    apr: { min: 30, max: 35 },
     status: 'active',
     ecosystem: 'ethereum',
-    stakeUrl: 'https://portal.skale.space/staking',
+    validatorAddress: '10', // Validator ID on SKALE
+    explorerUrl: 'https://portal.skale.space/staking/new/0/10',
+    stakeUrl: 'https://portal.skale.space/staking/new/0/10',
     commission: 5,
-    // Note: SKALE staking data requires Ethereum contract calls
-    // Validator data available via Consensys Activate platform
   },
   {
     id: 'celer',
