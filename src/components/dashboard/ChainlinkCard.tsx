@@ -38,6 +38,7 @@ interface ChainlinkStats {
   last30Days: number;
   last90Days: number;
   linkPrice?: number;
+  hasTransferHistory?: boolean;
   config: {
     nodeOperatorAddress: string;
     joinedDate: string;
@@ -337,8 +338,26 @@ export function ChainlinkCard() {
               </BarChart>
             </ResponsiveContainer>
           </div>
+        ) : stats.hasTransferHistory === false ? (
+          <div className="h-[200px] flex flex-col items-center justify-center text-muted-foreground p-6 bg-muted/30 rounded-lg border border-dashed">
+            <p className="text-center mb-2">
+              Payment history requires an Etherscan API key
+            </p>
+            <p className="text-xs text-center max-w-md">
+              Add <code className="bg-muted px-1 rounded">ETHERSCAN_API_KEY</code> to your environment variables.
+              Get a free key at{' '}
+              <a 
+                href="https://etherscan.io/apis" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline"
+              >
+                etherscan.io/apis
+              </a>
+            </p>
+          </div>
         ) : (
-          <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+          <div className="h-[200px] flex items-center justify-center text-muted-foreground">
             No payments in selected period
           </div>
         )}

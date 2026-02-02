@@ -1,9 +1,19 @@
 // Chainlink Node Operator API client
-// Fetches LINK token transfers from Etherscan API
+// Fetches LINK token transfers and balance
 
-const ETHERSCAN_API_BASE = 'https://api.etherscan.io/api';
 const LINK_TOKEN_ADDRESS = '0x514910771af9ca656af840dff83e8264ecf986ca';
 const NODE_OPERATOR_ADDRESS = '0x7A30E4B6307c0Db7AeF247A656b44d888B23a2DC';
+
+// Public Ethereum RPC endpoints
+const ETH_RPC_ENDPOINTS = [
+  'https://eth.llamarpc.com',
+  'https://ethereum.publicnode.com',
+  'https://rpc.ankr.com/eth',
+  'https://cloudflare-eth.com',
+];
+
+// Etherscan API v2 (requires API key)
+const ETHERSCAN_API_V2 = 'https://api.etherscan.io/v2/api';
 
 export interface LinkTransfer {
   hash: string;
@@ -11,7 +21,7 @@ export interface LinkTransfer {
   timeStamp: string;
   from: string;
   to: string;
-  value: string; // in wei (18 decimals)
+  value: string;
   tokenName: string;
   tokenSymbol: string;
   gasUsed: string;
@@ -21,7 +31,7 @@ export interface LinkTransfer {
 export interface ChainlinkPayment {
   hash: string;
   timestamp: Date;
-  amount: number; // in LINK
+  amount: number;
   amountUsd?: number;
   from: string;
   direction: 'in' | 'out';
@@ -40,10 +50,54 @@ export interface ChainlinkStats {
 }
 
 /**
- * Fetch LINK token transfers for the node operator address
- * Etherscan API: tokentx
- * 
- * Note: Requires ETHERSCAN_API_KEY environment variable
+ * Fetch LINK balance using Ethereum RPC (eth_call with balanceOf)
+ */
+export async function fetchLinkBalanceViaRPC(): Promise<number> {
+  // ERC20 balanceOf function selector + padded address
+  const balanceOfSelector = '0x70a08231';
+  const paddedAddress = NODE_OPERATOR_ADDRESS.toLowerCase().replace('0x', '').padStart(64, '0');
+  const data = balanceOfSelector + paddedAddress;
+
+  for (const rpcUrl of ETH_RPC_ENDPOINTS) {
+    try {
+      const response = await fetch(rpcUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'eth_call',
+          params: [
+            {
+              to: LINK_TOKEN_ADDRESS,
+              data: data,
+            },
+            'latest',
+          ],
+        }),
+      });
+
+      if (!response.ok) continue;
+
+      const result = await response.json();
+      
+      if (result.result && result.result !== '0x') {
+        // Convert hex to decimal, then divide by 10^18
+        const balanceWei = BigInt(result.result);
+        return Number(balanceWei) / 1e18;
+      }
+    } catch (error) {
+      console.error(`RPC error (${rpcUrl}):`, error);
+      continue;
+    }
+  }
+
+  return 0;
+}
+
+/**
+ * Fetch LINK token transfers using Etherscan API v2
+ * Requires ETHERSCAN_API_KEY environment variable
  */
 export async function fetchLinkTransfers(
   apiKey?: string
@@ -51,10 +105,12 @@ export async function fetchLinkTransfers(
   const key = apiKey || process.env.ETHERSCAN_API_KEY || process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY;
   
   if (!key) {
-    console.warn('No Etherscan API key provided, using demo mode with limited requests');
+    console.warn('No Etherscan API key provided - transfer history unavailable');
+    return [];
   }
 
   const params = new URLSearchParams({
+    chainid: '1', // Ethereum mainnet
     module: 'account',
     action: 'tokentx',
     contractaddress: LINK_TOKEN_ADDRESS,
@@ -62,15 +118,15 @@ export async function fetchLinkTransfers(
     startblock: '0',
     endblock: '99999999',
     page: '1',
-    offset: '1000', // Get last 1000 transactions
+    offset: '1000',
     sort: 'desc',
-    ...(key && { apikey: key }),
+    apikey: key,
   });
 
   try {
-    const response = await fetch(`${ETHERSCAN_API_BASE}?${params}`, {
+    const response = await fetch(`${ETHERSCAN_API_V2}?${params}`, {
       headers: { 'Accept': 'application/json' },
-      next: { revalidate: 300 }, // Cache for 5 minutes
+      next: { revalidate: 300 },
     });
 
     if (!response.ok) {
@@ -93,22 +149,32 @@ export async function fetchLinkTransfers(
 }
 
 /**
- * Fetch current LINK balance for the address
+ * Fetch current LINK balance - tries RPC first, then Etherscan v2
  */
 export async function fetchLinkBalance(apiKey?: string): Promise<number> {
+  // Try RPC first (no API key needed)
+  const rpcBalance = await fetchLinkBalanceViaRPC();
+  if (rpcBalance > 0) {
+    return rpcBalance;
+  }
+
+  // Fallback to Etherscan v2 if API key available
   const key = apiKey || process.env.ETHERSCAN_API_KEY || process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY;
+  
+  if (!key) return 0;
 
   const params = new URLSearchParams({
+    chainid: '1',
     module: 'account',
     action: 'tokenbalance',
     contractaddress: LINK_TOKEN_ADDRESS,
     address: NODE_OPERATOR_ADDRESS,
     tag: 'latest',
-    ...(key && { apikey: key }),
+    apikey: key,
   });
 
   try {
-    const response = await fetch(`${ETHERSCAN_API_BASE}?${params}`, {
+    const response = await fetch(`${ETHERSCAN_API_V2}?${params}`, {
       next: { revalidate: 300 },
     });
 
@@ -118,7 +184,6 @@ export async function fetchLinkBalance(apiKey?: string): Promise<number> {
     
     if (data.status !== '1') return 0;
 
-    // Convert from wei (18 decimals) to LINK
     return parseInt(data.result) / 1e18;
   } catch (error) {
     console.error('Error fetching LINK balance:', error);
