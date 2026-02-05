@@ -394,7 +394,7 @@ export function ChainlinkCard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredPayments.slice(0, 10).reverse().map((payment) => (
+                  {filteredPayments.slice(-10).reverse().map((payment) => (
                     <tr key={payment.hash} className="border-t">
                       <td className="p-3">
                         {new Date(payment.timestamp).toLocaleDateString()}
