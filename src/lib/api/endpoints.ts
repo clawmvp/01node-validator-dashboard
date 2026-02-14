@@ -24,8 +24,8 @@ export const ENDPOINTS = {
     chainId: 'juno-1',
   },
   secret: {
-    lcd: 'https://lcd.secret.express',
-    rpc: 'https://rpc.secret.express',
+    lcd: 'https://secretnetwork-api.lavenderfive.com',
+    rpc: 'https://secretnetwork-rpc.lavenderfive.com',
     chainId: 'secret-4',
   },
   persistence: {
