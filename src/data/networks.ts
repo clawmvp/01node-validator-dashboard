@@ -180,12 +180,15 @@ export const networks: Network[] = [
   },
   {
     id: 'xpla',
-    name: 'XPLA',
+    name: 'CONX (XPLA)',
     token: 'XPLA',
     logo: '/logos/xpla.svg',
-    apr: null,
+    apr: { min: 8, max: 12 },
     status: 'active',
     ecosystem: 'cosmos',
+    validatorAddress: 'xplavaloper1a00g26m9ut98xspcmlz0fmtknfeqmmne3jdr99',
+    explorerUrl: 'https://staking-explorer.com/staking/xpla/xplavaloper1a00g26m9ut98xspcmlz0fmtknfeqmmne3jdr99',
+    stakeUrl: 'https://staking-explorer.com/staking/xpla',
     commission: 5,
   },
   {
