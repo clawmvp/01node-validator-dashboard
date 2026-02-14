@@ -70,7 +70,7 @@ const TOKEN_DECIMALS: Record<string, number> = {
   zetachain: 18,  // ZETA has 18 decimals (azeta)
   dymension: 18,  // DYM has 18 decimals (adym)
   nolus: 6,       // NLS has 6 decimals (unls)
-  seda: 6,        // SEDA has 6 decimals (aseda)
+  seda: 18,       // SEDA has 18 decimals (aseda)
   persistence: 6, // XPRT has 6 decimals (uxprt)
   lava: 6,        // LAVA has 6 decimals (ulava)
   nibiru: 6,      // NIBI has 6 decimals (unibi)
@@ -121,13 +121,21 @@ export async function fetchCosmosValidator(
     let bondedTokens = 0;
     if (poolRes.ok) {
       const poolData: CosmosPoolResponse = await poolRes.json();
-      const decimals = TOKEN_DECIMALS[networkId] || 6;
-      bondedTokens = parseInt(poolData.pool.bonded_tokens) / Math.pow(10, decimals);
+      const poolDecimals = TOKEN_DECIMALS[networkId] || 6;
+      // Use BigInt for large numbers to avoid precision loss
+      const rawBonded = BigInt(poolData.pool.bonded_tokens);
+      const poolDivisor = BigInt(Math.pow(10, Math.min(poolDecimals, 18)));
+      const poolRemainingDecimals = Math.max(0, poolDecimals - 18);
+      bondedTokens = Number(rawBonded / poolDivisor) / Math.pow(10, poolRemainingDecimals);
     }
 
     // Parse validator data
     const decimals = TOKEN_DECIMALS[networkId] || 6;
-    const tokens = parseInt(validator.tokens) / Math.pow(10, decimals);
+    // Use BigInt for large numbers to avoid precision loss, then convert to number
+    const rawTokens = BigInt(validator.tokens);
+    const divisor = BigInt(Math.pow(10, Math.min(decimals, 18))); // Handle up to 18 decimals
+    const remainingDecimals = Math.max(0, decimals - 18);
+    const tokens = Number(rawTokens / divisor) / Math.pow(10, remainingDecimals);
     const commission = parseFloat(validator.commission.commission_rates.rate) * 100;
     const votingPower = bondedTokens > 0 ? (tokens / bondedTokens) * 100 : 0;
 
