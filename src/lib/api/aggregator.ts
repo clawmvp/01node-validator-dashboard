@@ -290,6 +290,10 @@ export async function aggregateAllData(): Promise<AggregatedData> {
       updated.rank = data.rank;
       updated.totalValidators = data.totalValidators;
 
+      if (data.apr) {
+        updated.apr = { min: data.apr, max: data.apr };
+      }
+
       if (price) {
         updated.stake = {
           amount: data.stake,

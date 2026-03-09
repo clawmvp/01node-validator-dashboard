@@ -7,6 +7,12 @@ import { ENDPOINTS, VALIDATOR_ADDRESSES } from './endpoints';
 const STAKING_PRECOMPILE = '0x0000000000000000000000000000000000001000';
 const MON_DECIMALS = 18;
 
+// 25 MON per block, ~0.396s block time (50,000 blocks per ~5.5 hours)
+const BLOCK_REWARD_MON = 25;
+const APPROX_BLOCK_TIME_SECONDS = 0.396;
+const SECONDS_PER_YEAR = 365.25 * 24 * 3600;
+const BLOCKS_PER_YEAR = SECONDS_PER_YEAR / APPROX_BLOCK_TIME_SECONDS;
+
 export interface MonadValidatorData {
   network: 'monad';
   validatorId: number;
@@ -16,6 +22,8 @@ export interface MonadValidatorData {
   consensusStake: number;
   rank?: number;
   totalValidators?: number;
+  totalNetworkStake?: number;
+  apr?: number;
 }
 
 function encodeUint64(value: number): string {
@@ -137,8 +145,10 @@ export async function fetchMonadValidator(): Promise<MonadValidatorData | null> 
     const commissionPct = toMON(validatorData.commission) * 100;
     const stakeAmount = toMON(validatorData.stake);
 
-    // Compute rank by fetching stake for all consensus validators
+    // Compute rank, total network stake, and APR by fetching all validators
     let rank: number | undefined;
+    let totalNetworkStake: number | undefined;
+    let apr: number | undefined;
     try {
       const batchSize = 10;
       const stakes: { id: number; stake: bigint }[] = [];
@@ -156,8 +166,16 @@ export async function fetchMonadValidator(): Promise<MonadValidatorData | null> 
       stakes.sort((a, b) => (b.stake > a.stake ? 1 : b.stake < a.stake ? -1 : 0));
       const foundIdx = stakes.findIndex((s) => s.id === validatorId);
       if (foundIdx >= 0) rank = foundIdx + 1;
+
+      const totalStakeWei = stakes.reduce((sum, s) => sum + s.stake, BigInt(0));
+      totalNetworkStake = toMON(totalStakeWei);
+
+      if (totalNetworkStake > 0) {
+        const annualRewards = BLOCKS_PER_YEAR * BLOCK_REWARD_MON;
+        apr = (annualRewards / totalNetworkStake) * 100;
+      }
     } catch (err) {
-      console.error('Monad rank calculation failed:', err);
+      console.error('Monad rank/APR calculation failed:', err);
     }
 
     return {
@@ -169,6 +187,8 @@ export async function fetchMonadValidator(): Promise<MonadValidatorData | null> 
       consensusStake: toMON(validatorData.consensusStake),
       rank,
       totalValidators,
+      totalNetworkStake,
+      apr,
     };
   } catch (error) {
     console.error('Error fetching Monad validator:', error);
