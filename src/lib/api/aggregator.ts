@@ -291,7 +291,8 @@ export async function aggregateAllData(): Promise<AggregatedData> {
       updated.totalValidators = data.totalValidators;
 
       if (data.apr) {
-        updated.apr = { min: data.apr, max: data.apr };
+        const roundedApr = Math.round(data.apr * 100) / 100;
+        updated.apr = { min: roundedApr, max: roundedApr };
       }
 
       if (price) {
