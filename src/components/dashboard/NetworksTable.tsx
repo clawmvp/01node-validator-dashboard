@@ -139,6 +139,7 @@ export function NetworksTable({ networks }: NetworksTableProps) {
                 <SelectItem value="ethereum">Ethereum</SelectItem>
                 <SelectItem value="solana">Solana</SelectItem>
                 <SelectItem value="sui">Sui</SelectItem>
+                <SelectItem value="monad">Monad</SelectItem>
                 <SelectItem value="other">Other</SelectItem>
                 <SelectItem value="profitable">Profitable</SelectItem>
                 <SelectItem value="unprofitable">Unprofitable</SelectItem>

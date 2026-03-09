@@ -129,6 +129,17 @@ export const ENDPOINTS = {
     stakingContract: '0x00c83aeCC790e8a4453e5dD3B0B4b3680501a7A7',
   },
   
+  // === MONAD ===
+  monad: {
+    rpc: 'https://rpc.monad.xyz',
+    rpcBackup: [
+      'https://rpc3.monad.xyz',
+      'https://rpc-mainnet.monadinfra.com',
+    ],
+    chainId: 143,
+    stakingPrecompile: '0x0000000000000000000000000000000000001000',
+  },
+  
   // === PRICE APIS ===
   coingecko: {
     base: 'https://api.coingecko.com/api/v3',
@@ -159,6 +170,7 @@ export const VALIDATOR_ADDRESSES = {
   solana: 'BH7asDZbKkTmT3UWiNfmMVRgQEEpXoVThGPmQfgWwDhg',
   sui: '0x876e2ad4ba0375c7752d24ca47c69e7096e6dbfd82a215612a08f47cffebcfbc',
   near: '01node.poolv1.near',
+  monad: '72',
 } as const;
 
 // CoinGecko token IDs for price lookup
@@ -186,4 +198,5 @@ export const COINGECKO_IDS: Record<string, string> = {
   sui: 'sui',
   near: 'near',
   skale: 'skale',
+  monad: 'monad',
 };

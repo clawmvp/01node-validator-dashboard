@@ -8,7 +8,7 @@ export interface Network {
     max: number;
   } | null;
   status: 'active' | 'coming_soon' | 'inactive';
-  ecosystem: 'cosmos' | 'ethereum' | 'solana' | 'sui' | 'near' | 'other';
+  ecosystem: 'cosmos' | 'ethereum' | 'solana' | 'sui' | 'near' | 'monad' | 'other';
   
   // Staking data (to be fetched from APIs)
   stake?: {
@@ -52,4 +52,4 @@ export interface InfrastructureCosts {
 }
 
 export type SortOption = 'stake' | 'apr' | 'revenue' | 'name' | 'profitability';
-export type FilterOption = 'all' | 'cosmos' | 'ethereum' | 'solana' | 'sui' | 'other' | 'profitable' | 'unprofitable';
+export type FilterOption = 'all' | 'cosmos' | 'ethereum' | 'solana' | 'sui' | 'monad' | 'other' | 'profitable' | 'unprofitable';

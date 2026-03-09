@@ -297,6 +297,21 @@ export const networks: Network[] = [
     commission: 10,
   },
   
+  // === MONAD ===
+  {
+    id: 'monad',
+    name: 'Monad',
+    token: 'MON',
+    logo: '/logos/monad.svg',
+    apr: { min: 0, max: 0 },
+    status: 'active',
+    ecosystem: 'monad',
+    validatorAddress: '72',
+    explorerUrl: 'https://monadvision.com/validator/0x8F5eFD20BC9082Bdc020A90709F12c356e253Ccb',
+    stakeUrl: 'https://monadvision.com/validator/0x8F5eFD20BC9082Bdc020A90709F12c356e253Ccb',
+    commission: 20,
+  },
+  
   // === NEAR ===
   {
     id: 'near',
@@ -321,6 +336,7 @@ export const ecosystemColors: Record<string, string> = {
   solana: '#14F195',
   sui: '#4DA2FF',
   near: '#000000',
+  monad: '#836EF9',
   other: '#888888',
 };
 

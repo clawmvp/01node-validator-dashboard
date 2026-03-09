@@ -5,6 +5,7 @@ import { fetchSolanaValidator, SolanaValidatorData } from './solana';
 import { fetchSuiValidator, SuiValidatorData } from './sui';
 import { fetchNearValidator, NearValidatorData } from './near';
 import { fetchSkaleValidators, SkaleData } from './skale';
+import { fetchMonadValidator, MonadValidatorData } from './monad';
 import { fetchNeutronValidatorRevenue, fetchNeutronRevenueParams, NeutronRevenueStats } from './neutron-revenue';
 import { fetchAllPrices, calculateUsdValue } from './prices';
 import { COINGECKO_IDS, VALIDATOR_ADDRESSES } from './endpoints';
@@ -50,6 +51,7 @@ export async function fetchAllValidatorData(): Promise<{
   sui: SuiValidatorData | null;
   near: NearValidatorData | null;
   skale: SkaleData | null;
+  monad: MonadValidatorData | null;
   neutronRevenue: NeutronRevenueStats | null;
   errors: string[];
 }> {
@@ -107,6 +109,14 @@ export async function fetchAllValidatorData(): Promise<{
     errors.push(`Failed to fetch SKALE: ${error}`);
   }
 
+  // Fetch Monad
+  let monadData: MonadValidatorData | null = null;
+  try {
+    monadData = await fetchMonadValidator();
+  } catch (error) {
+    errors.push(`Failed to fetch Monad: ${error}`);
+  }
+
   // Fetch Neutron revenue stats
   let neutronRevenueData: NeutronRevenueStats | null = null;
   try {
@@ -123,6 +133,7 @@ export async function fetchAllValidatorData(): Promise<{
     sui: suiData,
     near: nearData,
     skale: skaleData,
+    monad: monadData,
     neutronRevenue: neutronRevenueData,
     errors,
   };
@@ -266,6 +277,29 @@ export async function aggregateAllData(): Promise<AggregatedData> {
           const avgApr = (updated.apr.min + updated.apr.max) / 2 / 100;
           const monthlyRewardTokens = data.totalDelegated * avgApr / 12;
           const commissionEarned = monthlyRewardTokens * ((updated.commission || 5) / 100);
+          updated.estimatedMonthlyRevenue = calculateUsdValue(commissionEarned, price);
+          updated.estimatedYearlyRevenue = updated.estimatedMonthlyRevenue * 12;
+        }
+      }
+    }
+
+    // Update Monad
+    if (network.id === 'monad' && validatorData.monad) {
+      const data = validatorData.monad;
+      updated.commission = data.commission;
+      updated.rank = data.rank;
+      updated.totalValidators = data.totalValidators;
+
+      if (price) {
+        updated.stake = {
+          amount: data.stake,
+          usdValue: calculateUsdValue(data.stake, price),
+        };
+
+        if (updated.apr) {
+          const avgApr = (updated.apr.min + updated.apr.max) / 2 / 100;
+          const monthlyRewardTokens = data.stake * avgApr / 12;
+          const commissionEarned = monthlyRewardTokens * (data.commission / 100);
           updated.estimatedMonthlyRevenue = calculateUsdValue(commissionEarned, price);
           updated.estimatedYearlyRevenue = updated.estimatedMonthlyRevenue * 12;
         }

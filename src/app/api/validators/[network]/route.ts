@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { fetchCompleteCosmosValidator } from '@/lib/api/cosmos';
 import { fetchSolanaValidator } from '@/lib/api/solana';
 import { fetchSuiValidator } from '@/lib/api/sui';
+import { fetchMonadValidator } from '@/lib/api/monad';
 import { getTokenPrice, calculateUsdValue } from '@/lib/api/prices';
 import { VALIDATOR_ADDRESSES } from '@/lib/api/endpoints';
 
@@ -70,6 +71,16 @@ export async function GET(
           ...data,
           price,
           usdValue: price ? calculateUsdValue(data.stakingPoolSuiBalance, price) : null,
+        };
+      }
+    } else if (network === 'monad') {
+      const data = await fetchMonadValidator();
+      if (data) {
+        price = await getTokenPrice('monad');
+        validatorData = {
+          ...data,
+          price,
+          usdValue: price ? calculateUsdValue(data.stake, price) : null,
         };
       }
     } else {
