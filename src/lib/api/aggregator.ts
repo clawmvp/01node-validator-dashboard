@@ -8,6 +8,7 @@ import { fetchSkaleValidators, SkaleData } from './skale';
 import { fetchMonadValidator, MonadValidatorData } from './monad';
 import { fetchNeutronValidatorRevenue, fetchNeutronRevenueParams, NeutronRevenueStats } from './neutron-revenue';
 import { fetchLidoDvtData, LidoDvtData } from './lido';
+import { fetchStakeLinkData, StakeLinkData } from './stakelink';
 import { fetchAllPrices, calculateUsdValue } from './prices';
 import { COINGECKO_IDS, VALIDATOR_ADDRESSES } from './endpoints';
 import { networks } from '@/data/networks';
@@ -40,6 +41,7 @@ export interface AggregatedData {
   networks: Network[];
   metrics: NetworkMetrics;
   lidoDvt: LidoDvtData | null;
+  stakelink: StakeLinkData | null;
   lastUpdated: string;
   errors: string[];
 }
@@ -56,6 +58,7 @@ export async function fetchAllValidatorData(): Promise<{
   monad: MonadValidatorData | null;
   neutronRevenue: NeutronRevenueStats | null;
   lidoDvt: LidoDvtData | null;
+  stakelink: StakeLinkData | null;
   errors: string[];
 }> {
   const errors: string[] = [];
@@ -138,6 +141,14 @@ export async function fetchAllValidatorData(): Promise<{
     errors.push(`Failed to fetch Lido SDVT: ${error}`);
   }
 
+  // Fetch stake.link (01node = 1 of 15 LINK LST operators)
+  let stakelinkData: StakeLinkData | null = null;
+  try {
+    stakelinkData = await fetchStakeLinkData();
+  } catch (error) {
+    errors.push(`Failed to fetch stake.link: ${error}`);
+  }
+
   return {
     cosmos: cosmosData,
     solana: solanaData,
@@ -147,6 +158,7 @@ export async function fetchAllValidatorData(): Promise<{
     monad: monadData,
     neutronRevenue: neutronRevenueData,
     lidoDvt: lidoDvtData,
+    stakelink: stakelinkData,
     errors,
   };
 }
@@ -323,6 +335,25 @@ export async function aggregateAllData(): Promise<AggregatedData> {
       }
     }
 
+    // stake.link — 01node operates as 1 of 15 LINK LST node operators
+    if (network.id === 'stakelink' && validatorData.stakelink) {
+      const data = validatorData.stakelink;
+      // 'stakelink' coingecko id maps to 'chainlink'
+      if (price && data.operatorShareLink > 0) {
+        updated.stake = {
+          amount: data.operatorShareLink,
+          usdValue: calculateUsdValue(data.operatorShareLink, price),
+        };
+        if (updated.apr) {
+          const avgApr = (updated.apr.min + updated.apr.max) / 2 / 100;
+          const monthlyRewardLink = data.operatorShareLink * avgApr / 12;
+          const commissionEarned = monthlyRewardLink * ((updated.commission || 1) / 100);
+          updated.estimatedMonthlyRevenue = calculateUsdValue(commissionEarned, price);
+          updated.estimatedYearlyRevenue = updated.estimatedMonthlyRevenue * 12;
+        }
+      }
+    }
+
     // Lido SDVT — 5 clusters operated by 01node
     if (network.id === 'lido-dvt' && validatorData.lidoDvt) {
       const data = validatorData.lidoDvt;
@@ -398,6 +429,7 @@ export async function aggregateAllData(): Promise<AggregatedData> {
     networks: updatedNetworks,
     metrics,
     lidoDvt: validatorData.lidoDvt,
+    stakelink: validatorData.stakelink,
     lastUpdated: new Date().toISOString(),
     errors,
   };

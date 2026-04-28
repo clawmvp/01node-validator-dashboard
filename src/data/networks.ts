@@ -300,6 +300,21 @@ export const networks: Network[] = [
     commission: 2,
   },
   {
+    id: 'stakelink',
+    name: 'stake.link',
+    token: 'LINK',
+    logo: '/logos/stakelink.svg',
+    apr: { min: 4, max: 5 },
+    status: 'active',
+    ecosystem: 'ethereum',
+    // 1 of 15 node operators backing stLINK; pro-rata share displayed
+    validatorAddress: '15-operator-pool',
+    explorerUrl: 'https://stake.link/',
+    stakeUrl: 'https://stake.link/',
+    // stake.link operator fee on rewards split across 15 operators (~0.5% effective)
+    commission: 1,
+  },
+  {
     id: 'skale',
     name: 'SKALE',
     token: 'SKL',

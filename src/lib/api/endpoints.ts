@@ -129,6 +129,21 @@ export const ENDPOINTS = {
     stakingContract: '0x00c83aeCC790e8a4453e5dD3B0B4b3680501a7A7',
   },
 
+  // === stake.link (Chainlink LST) ===
+  // 01node is 1 of 15 node operators backing stLINK
+  stakelink: {
+    rpc: [
+      'https://eth.merkle.io',
+      'https://ethereum.publicnode.com',
+      'https://eth.llamarpc.com',
+      'https://1rpc.io/eth',
+    ],
+    // StakingPool / stLINK token (LINK staked through stake.link)
+    stakingPool: '0xb8b295df2cd735b15BE5Eb419517Aa626fc43cD5',
+    // Number of node operators co-running the protocol
+    operatorCount: 15,
+  },
+
   // === LIDO Simple DVT Module (Ethereum) ===
   // 5 clusters operated by 01node (4× Obol + 1× SSV)
   lidoDvt: {
@@ -225,4 +240,5 @@ export const COINGECKO_IDS: Record<string, string> = {
   skale: 'skale',
   monad: 'monad',
   'lido-dvt': 'ethereum',
+  stakelink: 'chainlink',
 };
