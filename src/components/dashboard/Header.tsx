@@ -13,7 +13,8 @@ import {
   LayoutGrid,
   Table2,
   BarChart3,
-  Link2
+  Link2,
+  Layers
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
@@ -65,6 +66,10 @@ export function Header({ onRefresh, isRefreshing = false }: HeaderProps) {
             <TabsTrigger value="chainlink" className="flex items-center gap-1.5">
               <Link2 className="w-4 h-4" />
               <span className="hidden lg:inline">Chainlink</span>
+            </TabsTrigger>
+            <TabsTrigger value="lido" className="flex items-center gap-1.5">
+              <Layers className="w-4 h-4" />
+              <span className="hidden lg:inline">Lido DVT</span>
             </TabsTrigger>
           </TabsList>
 

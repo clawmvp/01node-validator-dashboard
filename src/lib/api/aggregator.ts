@@ -7,6 +7,7 @@ import { fetchNearValidator, NearValidatorData } from './near';
 import { fetchSkaleValidators, SkaleData } from './skale';
 import { fetchMonadValidator, MonadValidatorData } from './monad';
 import { fetchNeutronValidatorRevenue, fetchNeutronRevenueParams, NeutronRevenueStats } from './neutron-revenue';
+import { fetchLidoDvtData, LidoDvtData } from './lido';
 import { fetchAllPrices, calculateUsdValue } from './prices';
 import { COINGECKO_IDS, VALIDATOR_ADDRESSES } from './endpoints';
 import { networks } from '@/data/networks';
@@ -38,6 +39,7 @@ const COSMOS_NETWORKS = [
 export interface AggregatedData {
   networks: Network[];
   metrics: NetworkMetrics;
+  lidoDvt: LidoDvtData | null;
   lastUpdated: string;
   errors: string[];
 }
@@ -53,6 +55,7 @@ export async function fetchAllValidatorData(): Promise<{
   skale: SkaleData | null;
   monad: MonadValidatorData | null;
   neutronRevenue: NeutronRevenueStats | null;
+  lidoDvt: LidoDvtData | null;
   errors: string[];
 }> {
   const errors: string[] = [];
@@ -127,6 +130,14 @@ export async function fetchAllValidatorData(): Promise<{
     errors.push(`Failed to fetch Neutron revenue: ${error}`);
   }
 
+  // Fetch Lido SDVT (5 clusters: 4× Obol + 1× SSV)
+  let lidoDvtData: LidoDvtData | null = null;
+  try {
+    lidoDvtData = await fetchLidoDvtData();
+  } catch (error) {
+    errors.push(`Failed to fetch Lido SDVT: ${error}`);
+  }
+
   return {
     cosmos: cosmosData,
     solana: solanaData,
@@ -135,6 +146,7 @@ export async function fetchAllValidatorData(): Promise<{
     skale: skaleData,
     monad: monadData,
     neutronRevenue: neutronRevenueData,
+    lidoDvt: lidoDvtData,
     errors,
   };
 }
@@ -311,6 +323,27 @@ export async function aggregateAllData(): Promise<AggregatedData> {
       }
     }
 
+    // Lido SDVT — 5 clusters operated by 01node
+    if (network.id === 'lido-dvt' && validatorData.lidoDvt) {
+      const data = validatorData.lidoDvt;
+      updated.totalValidators = data.totalActiveValidators;
+      // ETH price from CoinGecko ('lido-dvt' → 'ethereum')
+      if (price && data.totalEthStaked > 0) {
+        updated.stake = {
+          amount: data.totalEthStaked,
+          usdValue: calculateUsdValue(data.totalEthStaked, price),
+        };
+        if (updated.apr) {
+          const avgApr = (updated.apr.min + updated.apr.max) / 2 / 100;
+          const monthlyRewardEth = data.totalEthStaked * avgApr / 12;
+          // commission is the effective DVT-shared cut for 01node (~2%)
+          const commissionEarned = monthlyRewardEth * ((updated.commission || 2) / 100);
+          updated.estimatedMonthlyRevenue = calculateUsdValue(commissionEarned, price);
+          updated.estimatedYearlyRevenue = updated.estimatedMonthlyRevenue * 12;
+        }
+      }
+    }
+
     // Neutron revenue from Revenue Module API
     // reward_quote is $3000/month per validator, adjusted by performance
     if (network.id === 'neutron' && validatorData.neutronRevenue) {
@@ -364,6 +397,7 @@ export async function aggregateAllData(): Promise<AggregatedData> {
   return {
     networks: updatedNetworks,
     metrics,
+    lidoDvt: validatorData.lidoDvt,
     lastUpdated: new Date().toISOString(),
     errors,
   };

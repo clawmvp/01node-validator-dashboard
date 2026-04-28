@@ -283,6 +283,23 @@ export const networks: Network[] = [
   
   // === ETHEREUM ECOSYSTEM ===
   {
+    id: 'lido-dvt',
+    name: 'Lido SDVT',
+    token: 'ETH',
+    logo: '/logos/lido.svg',
+    apr: { min: 3, max: 4 },
+    status: 'active',
+    ecosystem: 'ethereum',
+    // 5 clusters: Bountiful Bison (id 1, Obol), Quixotic Quail (28, Obol),
+    // Unfettered Urial (32, Obol), Ethereal Elf (42, Obol Super), Resilient Rabbit (53, SSV)
+    validatorAddress: '1,28,32,42,53',
+    explorerUrl: 'https://operatorsinfo.lido.fi/',
+    stakeUrl: 'https://stake.lido.fi/',
+    // Effective commission seen by 01node: SDVT module fee is 8% of staking rewards,
+    // split across cluster co-operators (~1/4 share on average) → ~2%
+    commission: 2,
+  },
+  {
     id: 'skale',
     name: 'SKALE',
     token: 'SKL',

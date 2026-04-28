@@ -3,10 +3,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Network, NetworkMetrics } from '@/types/network';
 import { networks as staticNetworks } from '@/data/networks';
+import type { LidoDvtData } from '@/lib/api/lido';
 
 interface ValidatorDataState {
   networks: Network[];
   metrics: NetworkMetrics;
+  lidoDvt: LidoDvtData | null;
   isLoading: boolean;
   error: string | null;
   lastUpdated: string | null;
@@ -35,6 +37,7 @@ export function useValidatorData() {
   const [state, setState] = useState<ValidatorDataState>({
     networks: staticNetworks,
     metrics: calculateStaticMetrics(staticNetworks),
+    lidoDvt: null,
     isLoading: true,
     error: null,
     lastUpdated: null,
@@ -58,6 +61,7 @@ export function useValidatorData() {
       setState({
         networks: data.networks,
         metrics: data.metrics,
+        lidoDvt: data.lidoDvt ?? null,
         isLoading: false,
         error: null,
         lastUpdated: data.lastUpdated,

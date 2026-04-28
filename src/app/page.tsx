@@ -8,6 +8,7 @@ import { StakeDistributionChart } from '@/components/dashboard/StakeDistribution
 import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { NetworksTable } from '@/components/dashboard/NetworksTable';
 import { ChainlinkCard } from '@/components/dashboard/ChainlinkCard';
+import { LidoCard } from '@/components/dashboard/LidoCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -27,7 +28,8 @@ import {
   Coins,
   DollarSign,
   Percent,
-  Link2
+  Link2,
+  Layers
 } from 'lucide-react';
 
 type SortBy = 'stake' | 'revenue' | 'apr';
@@ -35,15 +37,23 @@ type SortBy = 'stake' | 'revenue' | 'apr';
 export default function Dashboard() {
   const [sortBy, setSortBy] = useState<SortBy>('stake');
   
-  const { 
-    networks, 
-    metrics, 
-    isLoading, 
-    error, 
-    lastUpdated, 
+  const {
+    networks,
+    metrics,
+    lidoDvt,
+    isLoading,
+    error,
+    lastUpdated,
     apiErrors,
-    refresh 
+    refresh
   } = useValidatorData();
+
+  // ETH price is needed by LidoCard — read it from the lido-dvt network entry
+  const ethPrice = (() => {
+    const lido = networks.find(n => n.id === 'lido-dvt');
+    if (!lido?.stake?.usdValue || !lido.stake.amount) return undefined;
+    return lido.stake.usdValue / lido.stake.amount;
+  })();
 
   // Sort function
   const sortNetworks = (networksToSort: Network[]): Network[] => {
@@ -184,6 +194,10 @@ export default function Dashboard() {
             <Link2 className="w-4 h-4" />
             Chainlink
           </TabsTrigger>
+          <TabsTrigger value="lido" className="flex items-center gap-1.5">
+            <Layers className="w-4 h-4" />
+            Lido DVT
+          </TabsTrigger>
         </TabsList>
 
         {/* Grid View */}
@@ -295,6 +309,11 @@ export default function Dashboard() {
           {/* Chainlink View */}
           <TabsContent value="chainlink" className="space-y-6">
             <ChainlinkCard />
+          </TabsContent>
+
+          {/* Lido SDVT View */}
+          <TabsContent value="lido" className="space-y-6">
+            <LidoCard data={lidoDvt} ethPrice={ethPrice} isLoading={isLoading} />
           </TabsContent>
 
         {/* API Documentation */}

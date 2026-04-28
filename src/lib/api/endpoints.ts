@@ -128,6 +128,31 @@ export const ENDPOINTS = {
   skale: {
     stakingContract: '0x00c83aeCC790e8a4453e5dD3B0B4b3680501a7A7',
   },
+
+  // === LIDO Simple DVT Module (Ethereum) ===
+  // 5 clusters operated by 01node (4× Obol + 1× SSV)
+  lidoDvt: {
+    // Public Ethereum RPCs (no key needed, with fallback rotation)
+    rpc: [
+      'https://eth.merkle.io',
+      'https://ethereum.publicnode.com',
+      'https://eth.llamarpc.com',
+      'https://1rpc.io/eth',
+      'https://eth-mainnet.public.blastapi.io',
+    ],
+    // Lido Simple DVT NodeOperatorsRegistry (StakingRouter module 2)
+    nodeOperatorsRegistry: '0xae7b191a31f627b4eb1d4dac64eab9976995b433',
+    stakingRouter: '0xFdDf38947aFB03C621C71b06C9C70bce73f12999',
+    // Each Ethereum validator holds 32 ETH
+    ethPerValidator: 32,
+    operators: [
+      { id: 1,  name: 'Bountiful Bison',  framework: 'Obol' },
+      { id: 28, name: 'Quixotic Quail',   framework: 'Obol' },
+      { id: 32, name: 'Unfettered Urial', framework: 'Obol' },
+      { id: 42, name: 'Ethereal Elf',     framework: 'Obol Super Cluster' },
+      { id: 53, name: 'Resilient Rabbit', framework: 'SSV' },
+    ],
+  },
   
   // === MONAD ===
   monad: {
@@ -199,4 +224,5 @@ export const COINGECKO_IDS: Record<string, string> = {
   near: 'near',
   skale: 'skale',
   monad: 'monad',
+  'lido-dvt': 'ethereum',
 };
